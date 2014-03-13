@@ -53,6 +53,10 @@ private:
 	float gameTime;
 	
 	float speed;
+	float normalSpeed;
+	float sprintBoost;
+
+	float limbSpeed;
 	ID3D10Device* device;
 
 };

@@ -188,7 +188,7 @@ void Game2App::initApp()
 	down = Vector3(0,-1,0);
 	zero = Vector3(0,0,0);
 
-	player.init("Daniel", Vector3(0,0, 0), 15, 10, 2, 1, md3dDevice);
+	player.init("Daniel", Vector3(0,0, 0), 15, 17, 6, 3.3f, md3dDevice);
 
 
 
@@ -295,7 +295,7 @@ void Game2App::drawScene()
 	std::wstring text = outs.str();
 	mFont->DrawText(0, text.c_str(), -1, &R, DT_NOCLIP, BLACK);*/
 	timesNew.draw(Hud, Vector2(5, 5));
-	if (gameOver)
+	/*if (gameOver)
 	{
 		mFont->DrawText(0, L"Game Over!", -1, &R1, DT_CENTER | DT_VCENTER, Black);
 	}
@@ -315,7 +315,7 @@ void Game2App::drawScene()
 	if (activeMessage)
 	{
 		mFont->DrawText(0, message.c_str(), -1, &R2, DT_CENTER | DT_VCENTER, Black);
-	}
+	}*/
 	
 
 	mSwapChain->Present(0, 0);

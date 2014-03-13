@@ -52,6 +52,8 @@ const UCHAR PlayerGDownKey = 0x4B;		// K
 const UCHAR PlayerBDownKey = 0x4C;		// L
 const UCHAR PlayerColorUpKey = 0x4A;//0x57;	// W
 const UCHAR PlayerColorDownKey = 0x4C;//0x53;  // S
+const UCHAR PlayerJumpKey = VK_SPACE;
+const UCHAR PlayerSprintKey = VK_LSHIFT;
 
 //-----------------------------------------------
 //                  Constants
