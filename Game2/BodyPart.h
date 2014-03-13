@@ -33,6 +33,10 @@ public:
 	void setRotY(float theta) {rotY = theta;}
 	void setRotZ(float phi) {rotZ = phi;}
 
+	void addRotX(float rho) {rotX += rho;}
+	void addRotY(float theta) {rotY += theta;}
+	void addRotZ(float phi) {rotZ += phi;}
+
 	void traverse(Matrix m);
 	Matrix getWorld();
 

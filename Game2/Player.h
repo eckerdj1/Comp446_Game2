@@ -39,6 +39,7 @@ private:
 	string name;
 	BodyPart* torso;
 	BodyPart* head;
+	BodyPart *rightArm, *leftArm, *rightLeg, *leftLeg;
 	Vector3 position;
 	Vector3 direction;
 

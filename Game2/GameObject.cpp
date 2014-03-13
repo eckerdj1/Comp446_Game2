@@ -13,6 +13,7 @@ GameObject::GameObject()
 
 GameObject::~GameObject()
 {
+	//delete box;
 	box = NULL;
 }
 
