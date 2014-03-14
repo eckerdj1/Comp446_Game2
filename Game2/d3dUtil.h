@@ -134,6 +134,7 @@ const float MATH_EPS = 0.0001f;
 
 const D3DXCOLOR White(1.0f, 1.0f, 1.0f, 1.0f);
 const D3DXCOLOR Black(0.0f, 0.0f, 0.0f, 1.0f);
+const D3DXCOLOR Gray(0.1f, 0.1f, 0.1f, 1.0f);
 const D3DXCOLOR Red(1.0f, 0.0f, 0.0f, 1.0f);
 const D3DXCOLOR Green(0.0f, 1.0f, 0.0f, 1.0f);
 const D3DXCOLOR Blue(0.0f, 0.0f, 1.0f, 1.0f);

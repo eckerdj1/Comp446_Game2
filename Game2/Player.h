@@ -29,6 +29,8 @@ public:
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
 	void setEffectVariables(ID3D10EffectMatrixVariable*, ID3D10EffectMatrixVariable*);
 
+	Vector3 getPosition() {return position;}
+
 public:
 	D3DXMATRIX mWVP;
 	ID3D10EffectMatrixVariable* mfxWVPVar;

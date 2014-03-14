@@ -92,6 +92,7 @@
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="BodyPart.cpp" />
     <ClCompile Include="Box.cpp" />
+    <ClCompile Include="Floor.cpp" />
     <ClCompile Include="Game2App.cpp" />
     <ClCompile Include="d3dApp.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="constants.h" />
     <ClInclude Include="d3dApp.h" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="Floor.h" />
     <ClInclude Include="gameError.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameTimer.h" />
