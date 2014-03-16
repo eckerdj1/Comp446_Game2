@@ -84,3 +84,10 @@ Matrix BodyPart::getWorld()
 {
 	return world;
 }
+
+void BodyPart::reduceScaleByFactor(float r)
+{
+	scaleX /= r;
+	scaleY /= r;
+	scaleZ /= r;
+}

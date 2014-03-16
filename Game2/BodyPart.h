@@ -28,6 +28,8 @@ public:
 	void setScaleX(float x) {scaleX = x;}
 	void setScaleY(float y) {scaleY = y;}
 	void setScaleZ(float z) {scaleZ = z;}
+
+	void reduceScaleByFactor(float r);
 	
 	void setRotX(float rho) {rotX = rho;}
 	void setRotY(float theta) {rotY = theta;}

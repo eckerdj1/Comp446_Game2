@@ -171,6 +171,10 @@ void Player::update(float dt)
 		rightLeg->setRotX(ToRadian(180));
 		leftLeg->setRotX(ToRadian(180));
 	}
+	if (keyPressed(PlayerJumpKey))
+	{
+		torso->reduceScaleByFactor(1.01f);
+	}
 	
 	//	arm movement
 	// rotate arms down
