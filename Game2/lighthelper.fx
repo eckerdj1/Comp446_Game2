@@ -5,6 +5,7 @@
 //=============================================================================
 
 
+
 struct Light
 {
 	float3 pos;
@@ -15,6 +16,7 @@ struct Light
 	float3 att;
 	float  spotPower;
 	float  range;
+	int type;
 };
 
 struct SurfaceInfo
@@ -24,6 +26,7 @@ struct SurfaceInfo
     float4 diffuse;
     float4 spec;
 };
+
 
 float3 ParallelLight(SurfaceInfo v, Light L, float3 eyePos)
 {

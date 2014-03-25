@@ -29,7 +29,7 @@ void Player::init(string n, Vector3 pos, float spd, float height, float width, f
 	position = pos;
 	speed = spd;
 	normalSpeed = speed;
-	sprintBoost = speed * 2.3f;
+	sprintBoost = speed * 3.3f;
 	limbSpeed = speed * 0.5f;
 	this->height = height;
 	this->width = width;
@@ -46,17 +46,23 @@ void Player::setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10Effect
 void Player::buildBody()
 {
 
-	Box* b = new Box();
-	b->init(device, width, height * 0.36f, depth, LightBlue, LightBlue);
-	Vector3 tPos = position;
-	tPos.y += height * 0.5f;
+	
+	
 	torso = new BodyPart();
 	head = new BodyPart();
 	rightArm = new BodyPart();
 	leftArm = new BodyPart();
 	rightLeg = new BodyPart();
 	leftLeg = new BodyPart();
+	rightShin = new BodyPart();
+	leftShin = new BodyPart();
+
 	// torso
+	Vector3 tPos = position;
+	tPos.y += height * 0.5f;
+	tPos = Vector3(0, 0, 0);
+	Box* b = new Box();
+	b->init(device, width, height * 0.36f, depth, LightBlue, LightBlue);
 	torso->init("torso", b, tPos, direction, Vector3(width, height * 0.36f, depth), speed);
 	torso->setPlayer(this);
 
@@ -78,6 +84,7 @@ void Player::buildBody()
 	rightArm->init("rightArm", b, raPos, direction, Vector3(width * 0.2f, height * 0.37f, depth * 0.5f), speed);
 	rightArm->setPlayer(this);
 	rightArm->setRoot(torso);
+
 	// left arm
 	b = new Box();
 	Vector3 laPos = position;
@@ -90,19 +97,38 @@ void Player::buildBody()
 	// right leg
 	b = new Box();
 	Vector3 rlPos = position;
-	rlPos += Vector3(width * 0.35f, height * -0.05f, 0);
-	b->init(device, width * 0.25f, height * 0.45f, depth * 0.5f, LightBlue, LightBlue);
-	rightLeg->init("rightLeg", b, rlPos, direction, Vector3(width * 0.25f, height * 0.45f, depth * 0.5f), speed);
+	rlPos += Vector3(width * 0.35f, height * -0.02f, 0);
+	b->init(device, width * 0.25f, height * 0.21f, depth * 0.5f, LightBlue, LightBlue);
+	rightLeg->init("rightLeg", b, rlPos, direction, Vector3(width * 0.25f, height * 0.21f, depth * 0.5f), speed);
 	rightLeg->setPlayer(this);
 	rightLeg->setRoot(torso);
+
 	// left leg
 	b = new Box();
 	Vector3 llPos = position;
-	llPos += Vector3(width * -0.35f, height * -0.05f, 0);
-	b->init(device, width * 0.25f, height * 0.45f, depth * 0.5f, LightBlue, LightBlue);
-	leftLeg->init("leftLeg", b, llPos, direction, Vector3(width * 0.25f, height * 0.45f, depth * 0.5f), speed);
+	llPos += Vector3(width * -0.35f, height * -0.02f, 0);
+	b->init(device, width * 0.25f, height * 0.21f, depth * 0.5f, LightBlue, LightBlue);
+	leftLeg->init("leftLeg", b, llPos, direction, Vector3(width * 0.25f, height * 0.21f, depth * 0.5f), speed);
 	leftLeg->setPlayer(this);
 	leftLeg->setRoot(torso);
+
+	//right shin
+	b = new Box();
+	Vector3 rsPos = position;
+	rsPos += Vector3(0, height * .22f, 0);
+	b->init(device, width * 0.24f, height * 0.20f, depth * 0.5f, LightBlue, LightBlue);
+	rightShin->init("rightShin", b, rsPos, direction, Vector3(width * 0.24f, height * 0.20f, depth * 0.5f), speed);
+	rightShin->setPlayer(this);
+	rightShin->setRoot(rightLeg);
+
+	//left shin
+	b = new Box();
+	Vector3 lsPos = position;
+	lsPos += Vector3(0, height * .22f, 0);
+	b->init(device, width * 0.24f, height * 0.20f, depth * 0.5f, LightBlue, LightBlue);
+	leftShin->init("leftShin", b, lsPos, direction, Vector3(width * 0.24f, height * 0.20f, depth * 0.5f), speed);
+	leftShin->setPlayer(this);
+	leftShin->setRoot(leftLeg);
 
 	// connect body parts
 	torso->addChild(head);
@@ -110,19 +136,24 @@ void Player::buildBody()
 	torso->addChild(leftArm);
 	torso->addChild(rightLeg);
 	torso->addChild(leftLeg);
+	rightLeg->addChild(rightShin);
+	leftLeg->addChild(leftShin);
 	b = 0;
 }
 
 void Player::update(float dt)
 {
 	gameTime += dt;
+	elapsed += dt;
 	//Take care of input
 	//torso->setSpeed(0.0f);
 	bool moving = false;
+	bool sprinting = false;
 	if (keyPressed(PlayerSprintKey))
 	{
 		speed = sprintBoost;
 		torso->setRotX(ToRadian(15));
+		sprinting = true;
 	}
 	else
 	{
@@ -140,6 +171,8 @@ void Player::update(float dt)
 		position -= direction * speed * dt;
 		moving = true;
 	}
+	if (!moving)
+		elapsed = 0;
 	if (keyPressed(PlayerRightKey))
 	{
 		dirTheta += turnSpeed * dt;
@@ -155,22 +188,49 @@ void Player::update(float dt)
 	direction.x = sinf(dirTheta);
 	direction.z = cosf(dirTheta);
 	torso->setDirection(direction);
-	torso->setPosition(position);
+	torso->setPosition(Vector3(position.x, position.y + height * 0.5f, position.z));
+	
 
 	//	leg movement
-	// rotate legs down
-	rightLeg->setRotX(ToRadian(180));
-	leftLeg->setRotX(ToRadian(180));
-	if (moving)
-	{	//swing arms back and forth if moving
-		rightLeg->addRotX(-cos(gameTime * limbSpeed) * 0.6f * (speed/normalSpeed));
-		leftLeg->addRotX(cos(gameTime * limbSpeed) * 0.6f * (speed/normalSpeed));
+	
+	float normPos = 175;
+	float legRot = sin(elapsed * limbSpeed);
+	float phase = 0;
+	float shinRot = sin(elapsed * limbSpeed + phase);
+	float legRange = 0;
+	float legOffset = 0;
+	float shinRange = 0;
+	float shinOffset = 10;
+	if (moving && !sprinting) // set the leg position variables
+	{	//swing legs back and forth if moving
+		normPos = 175;
+		legRot = sin(elapsed * limbSpeed);
+		phase = 1.414f;
+		shinRot = sin(elapsed * limbSpeed + phase);
+		legRange = 20;
+		legOffset = 0;
+		shinRange = 25;
+		shinOffset = 15;
 	}
-	else
-	{	//move arms by side if not moving
-		rightLeg->setRotX(ToRadian(180));
-		leftLeg->setRotX(ToRadian(180));
+	else if (moving && sprinting)
+	{
+		normPos = 175;
+		legRot = sin(elapsed * limbSpeed);
+		phase = 1.414f;
+		shinRot = sin(elapsed * limbSpeed + phase);
+		legRange = 90;
+		legOffset = -45;
+		shinRange = 80;
+		shinOffset = 55;
 	}
+	// set the leg positions
+	rightLeg->setRotX(ToRadian(normPos + (-legRot * legRange + legOffset)));
+	leftLeg->setRotX(ToRadian(normPos + (legRot * legRange + legOffset)));
+
+	rightShin->setRotX(ToRadian(shinRot * shinRange + shinOffset));
+	leftShin->setRotX(ToRadian(-shinRot * shinRange + shinOffset));
+
+
 	if (keyPressed(PlayerJumpKey))
 	{
 		torso->reduceScaleByFactor(1.01f);
@@ -180,10 +240,22 @@ void Player::update(float dt)
 	// rotate arms down
 	rightArm->setRotX(ToRadian(180));
 	leftArm->setRotX(ToRadian(180));
-	if (moving)
+	if (moving && !sprinting)
 	{	//swing arms back and forth if moving
-		rightArm->addRotX(cos(gameTime * limbSpeed));
-		leftArm->addRotX(-cos(gameTime * limbSpeed));
+		float normPos = 180;
+		float armRot = sin(elapsed * limbSpeed);
+		float armRange = 10;
+		rightArm->setRotX(ToRadian(normPos + (armRot * armRange)));
+		leftArm->setRotX(ToRadian(normPos + (-armRot * armRange)));
+	}
+	else if (moving && sprinting)
+	{
+		float normPos = 180;
+		float armRot = sin(elapsed * limbSpeed);
+		float armRange = 30;
+		float armOffset = 10;
+		rightArm->setRotX(ToRadian(normPos + (armRot * armRange) + armOffset));
+		leftArm->setRotX(ToRadian(normPos + (-armRot * armRange) + armOffset));
 	}
 	else
 	{	//move arms by side if not moving
@@ -197,6 +269,8 @@ void Player::update(float dt)
 	leftArm->update(dt);
 	rightLeg->update(dt);
 	leftLeg->update(dt);
+	rightShin->update(dt);
+	leftShin->update(dt);
 	torso->update(dt);
 	
 

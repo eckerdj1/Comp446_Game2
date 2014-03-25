@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "Obstacle.h"
 #include "Light.h"
+#include "Floor.h"
 
 #include <math.h>
 #include <ctime>
@@ -61,6 +62,7 @@ private:
 	Box lineBox;
 	GameObject outline[11];
 	Player player;
+	Floor floor;
 	int numberOfObstacles;
 	vector<Box*> obstacleBoxes;
 	vector<Obstacle> obstacles;
@@ -74,6 +76,7 @@ private:
 
 	//Lighting
 	vector<Light> lights;
+	Light ambientLight;
 	int numberOfLights;
 	int lightType; // 0-parallel, 1-pointlight, 2-spotlight
 
@@ -121,13 +124,24 @@ private:
 	//light variables
 	ID3D10EffectMatrixVariable* mfxWorldVar;
 	ID3D10EffectVariable* mfxEyePosVar;
-	ID3D10EffectVariable* mfxLightVar;
+	vector<ID3D10EffectVariable*> mfxLightVar;
+	ID3D10EffectVariable* mfxAmbientVar;
 	ID3D10EffectScalarVariable* mfxLightType;
+	ID3D10EffectScalarVariable* mfxLightCount;
+
 
 
 	D3DXMATRIX mView;
 	D3DXMATRIX mProj;
 	D3DXMATRIX mVP;
+
+	Vector3 CameraDirection;
+	Vector3 camPos;
+	float camTheta;
+	float camTurnSpeed;
+	float camZoom;
+	float zoomSpeed;
+	float maxZoom, minZoom;
 
 	//my edits
 	D3DXMATRIX worldBox1, worldBox2;
@@ -188,33 +202,53 @@ void Game2App::initApp()
 	down = Vector3(0,-1,0);
 	zero = Vector3(0,0,0);
 
-	player.init("Daniel", Vector3(0,0, 0), 15, 17, 6, 3.3f, md3dDevice);
+	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice);
 
+	floor.init(md3dDevice, 2000, 2000);
 
-
+	CameraDirection = forward;
+	camPos = Vector3(0.0f, 100.0f, 0.0f);
+	camZoom = 1.0f;
+	camTheta = 0.0f;
+	camTurnSpeed = 5;
+	zoomSpeed = 5;
+	maxZoom = 10.0f;
+	minZoom = 0.5f;
 
 
 	//init lights - using pointlights
 	lightType = 1;
-	numberOfLights = 1;
-	for (int i=0; i<numberOfLights; ++i)
+	int rows = 5, cols = 6;
+	numberOfLights = rows * cols;
+	float startRowPos = -500;
+	float startColPos = -600;
+	float spacing = 200;
+	for (int i=0; i<rows * cols; ++i)
 	{
 		Light l;
-		l.pos = Vector3(0, 50, -17);
+		l.pos = Vector3(((i / cols) % rows) * spacing + startRowPos,
+						30,
+						(i % cols) * spacing + startColPos);
+		//l.pos = Vector3(0,100,0);
 		l.ambient = Color(0.67f, 0.67f, 0.67f);
 		l.diffuse = Color(1.0f, 1.0f, 1.0f);
 		l.specular = Color(1.0f, 1.0f, 1.0f);
-		l.att.x = 1.5f;
-		l.att.y = 0.0f;
-		l.att.z = 0.0f;
-		l.range = 97.0f;
+		l.att.x = 0.0f;
+		l.att.y = 0.03f;
+		l.att.z = 0.0011f;
+		l.range = 500.0f;
+		l.type = lightType;
 		lights.push_back(l);
 	}
+	ambientLight.pos = Vector3(0,0,0);
+	ambientLight.ambient = Color(0.17f, 0.17f, 0.17f);
 
 
 	buildFX();
 	buildVertexLayouts();
 
+	
+	mfxLightCount->SetInt(numberOfLights);
 }
 
 void Game2App::onResize()
@@ -222,7 +256,7 @@ void Game2App::onResize()
 	D3DApp::onResize();
 
 	float aspect = (float)mClientWidth/mClientHeight;
-	D3DXMatrixPerspectiveFovLH(&mProj, 0.25f*PI, aspect, 1.0f, 1000.0f);
+	D3DXMatrixPerspectiveFovLH(&mProj, 0.25f*PI, aspect, 1.0f, 2000.0f);
 }
 
 void Game2App::updateScene(float dt)
@@ -233,13 +267,45 @@ void Game2App::updateScene(float dt)
 
 
 	player.update(dt);
+	floor.update(dt);
 
+	if (keyPressed(VK_RIGHT))
+	{
+		camTheta -= camTurnSpeed * dt;
+		if (camTheta > 180 || camTheta < -180)
+			camTheta = -camTheta;
+	}
+	if (keyPressed(VK_LEFT))
+	{
+		camTheta += camTurnSpeed * dt;
+		if (camTheta > 180 || camTheta < -180)
+			camTheta = -camTheta;
+	}
+	if (keyPressed(VK_UP))
+	{
+		camZoom += zoomSpeed * dt;
+		if (camZoom > maxZoom)
+			camZoom = maxZoom;
+	}
+	if (keyPressed(VK_DOWN))
+	{
+		camZoom -= zoomSpeed * dt;
+		if (camZoom < minZoom)
+			camZoom = minZoom;
+	}
+	
+	CameraDirection.x = sinf(camTheta);
+	CameraDirection.z = cosf(camTheta);
 
 	// Build the view matrix.
-	D3DXVECTOR3 pos(0.0f,45.0f,-50.0f);
+	camPos = Vector3(0.0f, 100.0f / camZoom, 0.0f);
+	camPos += player.getPosition();
+	camPos -= CameraDirection * 200 / camZoom;
+	//pos -= Vector3(player.getDirection().x, -0.6f, player.getDirection().z) * 80.0f;
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
+	target = player.getPosition();
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
-	D3DXMatrixLookAtLH(&mView, &pos, &target, &up);
+	D3DXMatrixLookAtLH(&mView, &camPos, &target, &up);
 	input->clearAll();
 }
 
@@ -254,11 +320,14 @@ void Game2App::drawScene()
 	float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
     md3dDevice->IASetInputLayout(mVertexLayout);
-	
-	D3DXVECTOR3 pos(0.0f,45.0f,-50.0f);
+
 	// set lighting shader variables
-	mfxEyePosVar->SetRawValue(&pos, 0, sizeof(Vector3));
-	mfxLightVar->SetRawValue(&lights[0], 0, sizeof(Light));
+	mfxEyePosVar->SetRawValue(&camPos, 0, sizeof(Vector3));
+	for (int i=0; i<numberOfLights; ++i)
+	{
+		mfxLightVar[i]->SetRawValue(&lights[i], 0, sizeof(Light));
+	}
+	mfxAmbientVar->SetRawValue(&ambientLight, 0, sizeof(Light));
 	mfxLightType->SetInt(lightType);
 
 	// set some variables for the shader
@@ -276,6 +345,11 @@ void Game2App::drawScene()
 	player.setMTech(mTech);
 	player.setEffectVariables(mfxWVPVar, mfxWorldVar);
 	player.draw(mVP);
+
+	floor.setMTech(mTech);
+	mfxWVPVar->SetMatrix(floor.getWorldMatrix() * mVP);
+	mfxWorldVar->SetMatrix(floor.getWorldMatrix());
+	floor.draw();
 
 
 	/////Text Drawing Section
@@ -348,8 +422,14 @@ void Game2App::buildFX()
 	mfxWVPVar = mFX->GetVariableByName("gWVP")->AsMatrix();
 	mfxWorldVar  = mFX->GetVariableByName("gWorld")->AsMatrix();
 	mfxEyePosVar = mFX->GetVariableByName("gEyePosW");
-	mfxLightVar = mFX->GetVariableByName("gLight");
+	for (int i=0; i<numberOfLights; ++i)
+	{
+		ID3D10EffectVariable* var = mFX->GetVariableByName("pointLights")->GetElement(i);
+		mfxLightVar.push_back(var);
+	}
+	mfxAmbientVar = mFX->GetVariableByName("ambientLight");
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
+	mfxLightCount = mFX->GetVariableByName("numberOfLights")->AsScalar();
 	//mfxFLIPVar = mFX->GetVariableByName("flip");
 
 }

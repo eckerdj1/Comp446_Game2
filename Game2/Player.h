@@ -30,6 +30,7 @@ public:
 	void setEffectVariables(ID3D10EffectMatrixVariable*, ID3D10EffectMatrixVariable*);
 
 	Vector3 getPosition() {return position;}
+	Vector3 getDirection() {return direction;}
 
 public:
 	D3DXMATRIX mWVP;
@@ -41,7 +42,8 @@ private:
 	string name;
 	BodyPart* torso;
 	BodyPart* head;
-	BodyPart *rightArm, *leftArm, *rightLeg, *leftLeg;
+	BodyPart *rightArm, *leftArm;
+	BodyPart *rightLeg, *leftLeg, *rightShin, *leftShin;
 	Vector3 position;
 	Vector3 direction;
 
@@ -53,6 +55,7 @@ private:
 	float turnSpeed;
 
 	float gameTime;
+	float elapsed;
 	
 	float speed;
 	float normalSpeed;

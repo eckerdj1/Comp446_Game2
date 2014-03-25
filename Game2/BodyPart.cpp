@@ -60,7 +60,7 @@ void BodyPart::traverse(Matrix m)
 	RotateX(&rx, rotX);
 	RotateY(&ry, rotY);
 	RotateZ(&rz, rotZ);
-	currentWorld = rz * rx * ry * trans * scale * m;
+	currentWorld = scale * rz * rx * ry * trans * m;
 	world = currentWorld;
 	for (int i = 0; i < children.size(); ++i)
 	{
