@@ -130,6 +130,7 @@
     <ClInclude Include="Score.h" />
     <ClInclude Include="TileObject.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
