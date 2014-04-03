@@ -15,14 +15,14 @@ using std::string;
 
 class BodyPart;
 
-class Player
+class Weapon
 {
 public:
-	Player();
-	~Player(void);
+	Weapon();
+	~Weapon(void);
 
 	void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* device);
-	void buildBody();
+	void buildParts();
 
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
 
@@ -31,11 +31,9 @@ public:
 	
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
 	void setEffectVariables(ID3D10EffectMatrixVariable*, ID3D10EffectMatrixVariable*);
-
+	
 	Vector3 getPosition() {return position;}
 	Vector3 getDirection() {return direction;}
-
-
 public:
 	D3DXMATRIX mWVP;
 	ID3D10EffectMatrixVariable* mfxWVPVar;
@@ -43,33 +41,13 @@ public:
 	ID3D10EffectTechnique* mTech;
 	ID3D10EffectShaderResourceVariable* diffuseMapVar;
 
-
 private:
 	string name;
-	BodyPart* torso;
-	BodyPart* head;
-	BodyPart *rightArm, *leftArm;
-	BodyPart *rightLeg, *leftLeg, *rightShin, *leftShin;
+
+	vector<BodyPart*> parts;
+
 	Vector3 position;
 	Vector3 direction;
 
-
-	float height;
-	float width;
-	float depth;
-
-	float dirTheta;
-	float turnSpeed;
-
-	float gameTime;
-	float elapsed;
-	
-	float speed;
-	float normalSpeed;
-	float sprintBoost;
-
-	float limbSpeed;
 	ID3D10Device* device;
-
 };
-

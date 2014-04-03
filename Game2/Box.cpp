@@ -219,6 +219,13 @@ void Box::init(ID3D10Device* device, float sX, float sY, float sZ, D3DXCOLOR c1,
 		HR(D3DX10CreateShaderResourceViewFromFile(device, 
 			L"noTex.jpg", 0, 0, &textures.rv[i], 0 ));
 	}
+	frontTex.init(device, sX, sY, c1);
+	backTex.init(device, sX, sY, c1);
+	leftSideTex.init(device, sZ, sY, c1);
+	rightSideTex.init(device, sZ, sY, c1);
+	topTex.init(device, sX, sZ, c1);
+	bottomTex.init(device, sX, sZ, c1);
+	
 	
 	mNumVertices = 24;
 	mNumFaces    = 12; // 2 per quad
@@ -350,21 +357,12 @@ void Box::draw()
 	if (diffuseMapVar)
 		diffuseMapVar->SetResource(textures.rv[0]);
 	md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
+	//if (textured)
+	//{
+	//	frontTex.
+	//}
 }
 
-void Box::draw(Player* p)
-{
-	UINT stride = sizeof(Vertex);
-    UINT offset = 0;
-	md3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    md3dDevice->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
-	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
-	for (int i=0; i<mNumFaces/2; ++i)
-	{
-		p->diffuseMapVar->SetResource(p->getTextures().rv[i]);
-		md3dDevice->DrawIndexed(6, i * 6, 0);
-	}
-}
 
 void Box::setVertexColor(DXColor c1,DXColor c2) {
 	mVB->Release();

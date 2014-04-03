@@ -13,6 +13,7 @@ public:
 
 	void init(ID3D10Device* device, float scale);
 	void init(ID3D10Device* device, float scale, D3DXCOLOR c);
+	void init(ID3D10Device* device, float scaleX, float scaleY, D3DXCOLOR c);
 	void draw();
 	void setWorld(Matrix w) {world = w;}
 	Matrix getWorld() {return world;}

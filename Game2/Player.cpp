@@ -26,18 +26,18 @@ void Player::init(string n, Vector3 pos, float spd, float height, float width, f
 {
 	device = d;
 
-	HR(D3DX10CreateShaderResourceViewFromFile(device, 
-		L"face.jpg", 0, 0, &textures.rv[0], 0 ));
-	HR(D3DX10CreateShaderResourceViewFromFile(device, 
-		L"side.jpg", 0, 0, &textures.rv[1], 0 ));
-	HR(D3DX10CreateShaderResourceViewFromFile(device, 
-		L"side.jpg", 0, 0, &textures.rv[2], 0 ));
-	HR(D3DX10CreateShaderResourceViewFromFile(device, 
-		L"side.jpg", 0, 0, &textures.rv[3], 0 ));
-	HR(D3DX10CreateShaderResourceViewFromFile(device, 
-		L"headTop.jpg", 0, 0, &textures.rv[4], 0 ));
-	HR(D3DX10CreateShaderResourceViewFromFile(device, 
-		L"noTex.jpg", 0, 0, &textures.rv[5], 0 ));
+	//HR(D3DX10CreateShaderResourceViewFromFile(device, 
+	//	L"face.jpg", 0, 0, &textures.rv[0], 0 ));
+	//HR(D3DX10CreateShaderResourceViewFromFile(device, 
+	//	L"side.jpg", 0, 0, &textures.rv[1], 0 ));
+	//HR(D3DX10CreateShaderResourceViewFromFile(device, 
+	//	L"side.jpg", 0, 0, &textures.rv[2], 0 ));
+	//HR(D3DX10CreateShaderResourceViewFromFile(device, 
+	//	L"side.jpg", 0, 0, &textures.rv[3], 0 ));
+	//HR(D3DX10CreateShaderResourceViewFromFile(device, 
+	//	L"headTop.jpg", 0, 0, &textures.rv[4], 0 ));
+	//HR(D3DX10CreateShaderResourceViewFromFile(device, 
+	//	L"noTex.jpg", 0, 0, &textures.rv[5], 0 ));
 
 	name = n;
 	position = pos;

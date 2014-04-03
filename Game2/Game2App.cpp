@@ -371,7 +371,7 @@ void Game2App::drawScene()
 
 	
 	// Drawing the Player
-	mfxTexVar->SetInt(1);
+	mfxTexVar->SetInt(0);
 	mVP = mView * mProj;
 	player.setMTech(mTech);
 	player.setEffectVariables(mfxWVPVar, mfxWorldVar);
