@@ -75,7 +75,7 @@ void BodyPart::draw(Matrix mVP)
 	player->mTech->GetPassByIndex(0)->Apply(0);
 	if (name == "head")
 	{
-		box->draw(player);
+		box->draw();
 	}
 	else
 	{
