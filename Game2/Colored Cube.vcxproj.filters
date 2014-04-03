@@ -143,6 +143,9 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files\Other</Filter>
     </ClInclude>
+    <ClInclude Include="CubeTex.h">
+      <Filter>Header Files\Other</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="color.fx" />

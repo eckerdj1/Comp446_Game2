@@ -25,6 +25,20 @@ Player::~Player()
 void Player::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d)
 {
 	device = d;
+
+	HR(D3DX10CreateShaderResourceViewFromFile(device, 
+		L"face.jpg", 0, 0, &textures.rv[0], 0 ));
+	HR(D3DX10CreateShaderResourceViewFromFile(device, 
+		L"side.jpg", 0, 0, &textures.rv[1], 0 ));
+	HR(D3DX10CreateShaderResourceViewFromFile(device, 
+		L"side.jpg", 0, 0, &textures.rv[2], 0 ));
+	HR(D3DX10CreateShaderResourceViewFromFile(device, 
+		L"side.jpg", 0, 0, &textures.rv[3], 0 ));
+	HR(D3DX10CreateShaderResourceViewFromFile(device, 
+		L"headTop.jpg", 0, 0, &textures.rv[4], 0 ));
+	HR(D3DX10CreateShaderResourceViewFromFile(device, 
+		L"noTex.jpg", 0, 0, &textures.rv[5], 0 ));
+
 	name = n;
 	position = pos;
 	speed = spd;
@@ -63,12 +77,14 @@ void Player::buildBody()
 	tPos = Vector3(0, 0, 0);
 	Box* b = new Box();
 	b->init(device, width, height * 0.36f, depth, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	torso->init("torso", b, tPos, direction, Vector3(width, height * 0.36f, depth), speed);
 	torso->setPlayer(this);
 
 	// head
 	b = new Box();
 	b->init(device, width * 0.45f, height * 0.12f, depth * 0.9f, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	Vector3 hPos = position;
 	hPos.y += height * 0.38f;
 	head->init("head", b, hPos, direction, Vector3(width * 0.45f, height * 0.12f, depth * 0.9f), speed);
@@ -81,6 +97,7 @@ void Player::buildBody()
 	Vector3 torsoSize = torso->getSize();
 	raPos += Vector3(width * 0.65f, torsoSize.y * 0.8f, 0);
 	b->init(device, width * 0.2f, height * 0.37f, depth * 0.5f, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	rightArm->init("rightArm", b, raPos, direction, Vector3(width * 0.2f, height * 0.37f, depth * 0.5f), speed);
 	rightArm->setPlayer(this);
 	rightArm->setRoot(torso);
@@ -90,6 +107,7 @@ void Player::buildBody()
 	Vector3 laPos = position;
 	laPos += Vector3(width * -0.65f, torsoSize.y * 0.8f, 0);
 	b->init(device, width * 0.2f, height * 0.37f, depth * 0.5f, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	leftArm->init("leftArm", b, laPos, direction, Vector3(width * 0.2f, height * 0.37f, depth * 0.5f), speed);
 	leftArm->setPlayer(this);
 	leftArm->setRoot(torso);
@@ -99,6 +117,7 @@ void Player::buildBody()
 	Vector3 rlPos = position;
 	rlPos += Vector3(width * 0.35f, height * -0.02f, 0);
 	b->init(device, width * 0.25f, height * 0.21f, depth * 0.5f, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	rightLeg->init("rightLeg", b, rlPos, direction, Vector3(width * 0.25f, height * 0.21f, depth * 0.5f), speed);
 	rightLeg->setPlayer(this);
 	rightLeg->setRoot(torso);
@@ -108,6 +127,7 @@ void Player::buildBody()
 	Vector3 llPos = position;
 	llPos += Vector3(width * -0.35f, height * -0.02f, 0);
 	b->init(device, width * 0.25f, height * 0.21f, depth * 0.5f, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	leftLeg->init("leftLeg", b, llPos, direction, Vector3(width * 0.25f, height * 0.21f, depth * 0.5f), speed);
 	leftLeg->setPlayer(this);
 	leftLeg->setRoot(torso);
@@ -117,6 +137,7 @@ void Player::buildBody()
 	Vector3 rsPos = position;
 	rsPos += Vector3(0, height * .22f, 0);
 	b->init(device, width * 0.24f, height * 0.20f, depth * 0.5f, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	rightShin->init("rightShin", b, rsPos, direction, Vector3(width * 0.24f, height * 0.20f, depth * 0.5f), speed);
 	rightShin->setPlayer(this);
 	rightShin->setRoot(rightLeg);
@@ -126,6 +147,7 @@ void Player::buildBody()
 	Vector3 lsPos = position;
 	lsPos += Vector3(0, height * .22f, 0);
 	b->init(device, width * 0.24f, height * 0.20f, depth * 0.5f, LightBlue, LightBlue);
+	b->setDiffuseMap(diffuseMapVar);
 	leftShin->init("leftShin", b, lsPos, direction, Vector3(width * 0.24f, height * 0.20f, depth * 0.5f), speed);
 	leftShin->setPlayer(this);
 	leftShin->setRoot(leftLeg);
@@ -286,4 +308,10 @@ void Player::draw(Matrix mVP)
     }
 
 
+}
+
+
+void Player::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
+{
+	diffuseMapVar = var;
 }

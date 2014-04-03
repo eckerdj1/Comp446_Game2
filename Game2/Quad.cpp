@@ -17,6 +17,8 @@ Quad::~Quad()
 	ReleaseCOM(mVB);
 	ReleaseCOM(mIB);
 }
+
+
 void Quad::init(ID3D10Device* device, float scale, D3DXCOLOR c)
 {
 	md3dDevice = device;
@@ -24,14 +26,20 @@ void Quad::init(ID3D10Device* device, float scale, D3DXCOLOR c)
 	mNumVertices = 4; //2 triangles per quad
 	mNumFaces    = 2; 
 
+	Vector2 tl, tr, bl, br;
+	tl = Vector2(0.0f, 0.0f);
+	tr = Vector2(1.0f, 0.0f);
+	bl = Vector2(0.0f, 1.0f);
+	br = Vector2(1.0f, 1.0f);
+
 	// Create vertex buffer
 
 	 Vertex vertices[] =
     {
-		{D3DXVECTOR3(-1.0f, 0.0f, 0.0f), c},
-		{D3DXVECTOR3(1.0f, 0.0f, 0.0f), c},
-		{D3DXVECTOR3(0.0f, 0.0f, -1.0f), c},
-		{D3DXVECTOR3(0.0f, 0.0f, 1.0f), c}
+		{D3DXVECTOR3(-1.0f, 1.0f, 0.0f), c, tl},
+		{D3DXVECTOR3(1.0f, 1.0f, 0.0f), c, tr},
+		{D3DXVECTOR3(1.0f, -1.0f, 0.0f), c, br},
+		{D3DXVECTOR3(-1.0f, -1.0f, 0.0f), c, bl}
     };
 
 	// Scale the Quad.
@@ -50,8 +58,8 @@ void Quad::init(ID3D10Device* device, float scale, D3DXCOLOR c)
 	//Index buffer
 	DWORD indices[] = {
 		// front face
-		0, 1, 3,
-		0, 2, 1
+		0, 1, 2,
+		0, 2, 3
 
 	};
 

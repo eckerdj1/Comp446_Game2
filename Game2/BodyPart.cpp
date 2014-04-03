@@ -73,7 +73,14 @@ void BodyPart::draw(Matrix mVP)
 	player->mfxWorldVar->SetMatrix(world);
 	player->mfxWVPVar->SetMatrix(world * mVP);
 	player->mTech->GetPassByIndex(0)->Apply(0);
-	box->draw();
+	if (name == "head")
+	{
+		box->draw(player);
+	}
+	else
+	{
+		box->draw();
+	}
 	for (int i=0; i<children.size(); ++i)
 	{
 		children[i]->draw(mVP);

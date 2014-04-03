@@ -57,7 +57,8 @@ private:
 	vector<GameObject> bullets;
 	Vector3 left, right, forward, back, up, down, zero;
 
-	////// New Stuff added by Steve //////
+	Quad splash;
+
 	Box playerBox;
 	Box lineBox;
 	GameObject outline[11];
@@ -66,19 +67,18 @@ private:
 	int numberOfObstacles;
 	vector<Box*> obstacleBoxes;
 	vector<Obstacle> obstacles;
-	/////New obstacle code: Daniel J. Ecker////
+
+
 	float floorMovement;
 	int clusterSize, clusterSizeVariation, clusterSeparation;
 	int cubeSeparation, lineJiggle, cubeJiggle, clusterJiggle;
-	//////////////////////////////////////
-	///Floor
-	//Floor floor;
 
 	//Lighting
 	vector<Light> lights;
 	Light ambientLight;
 	int numberOfLights;
 	int lightType; // 0-parallel, 1-pointlight, 2-spotlight
+	bool useTex;
 
 	float fallRatePerSecond;
 	float avgFallSpeed;
@@ -120,6 +120,13 @@ private:
 	ID3D10Effect* mFX;
 	ID3D10EffectTechnique* mTech;
 	ID3D10InputLayout* mVertexLayout;
+
+	ID3D10ShaderResourceView* mDiffuseMapRV;
+	ID3D10ShaderResourceView* mSpecMapRV;
+
+	ID3D10EffectShaderResourceVariable* mfxDiffuseMapVar;
+	ID3D10EffectShaderResourceVariable* mfxSpecMapVar;
+
 	ID3D10EffectMatrixVariable* mfxWVPVar;
 	//light variables
 	ID3D10EffectMatrixVariable* mfxWorldVar;
@@ -128,6 +135,8 @@ private:
 	ID3D10EffectVariable* mfxAmbientVar;
 	ID3D10EffectScalarVariable* mfxLightType;
 	ID3D10EffectScalarVariable* mfxLightCount;
+	ID3D10EffectScalarVariable* mfxTexVar;
+	ID3D10EffectMatrixVariable* mfxTexMtxVar;
 
 
 
@@ -202,9 +211,18 @@ void Game2App::initApp()
 	down = Vector3(0,-1,0);
 	zero = Vector3(0,0,0);
 
-	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice);
 
 	floor.init(md3dDevice, 2000, 2000);
+
+	splash.init(md3dDevice, 1.0f, White);
+
+	//initialize texture resources
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"goon.jpg", 0, 0, &mDiffuseMapRV, 0 ));
+
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"defaultspec.dds", 0, 0, &mSpecMapRV, 0 ));
+
 
 	CameraDirection = forward;
 	camPos = Vector3(0.0f, 100.0f, 0.0f);
@@ -248,7 +266,12 @@ void Game2App::initApp()
 	buildVertexLayouts();
 
 	
+	player.setDiffuseMap(mfxDiffuseMapVar);
+	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice);
+
+	
 	mfxLightCount->SetInt(numberOfLights);
+	mfxTexVar->SetInt(0);
 }
 
 void Game2App::onResize()
@@ -336,20 +359,39 @@ void Game2App::drawScene()
 	mTech->GetDesc(&techDesc);
 
 
-	//setting the color flip variable in the shader
+	// Set the resoure variables
+	
+	mfxDiffuseMapVar->SetResource(mDiffuseMapRV);
+	mfxSpecMapVar->SetResource(mSpecMapRV);
+
+	// Set the texture matrix
+	D3DXMATRIX texMtx;
+	D3DXMatrixIdentity(&texMtx);
+	mfxTexMtxVar->SetMatrix((float*)&texMtx);
 
 	
-
-	////// New Stuff added by Steve //////
+	// Drawing the Player
+	mfxTexVar->SetInt(1);
 	mVP = mView * mProj;
 	player.setMTech(mTech);
 	player.setEffectVariables(mfxWVPVar, mfxWorldVar);
 	player.draw(mVP);
 
+	mfxTexVar->SetInt(0);
 	floor.setMTech(mTech);
 	mfxWVPVar->SetMatrix(floor.getWorldMatrix() * mVP);
 	mfxWorldVar->SetMatrix(floor.getWorldMatrix());
+	mfxTexVar->SetInt(0);
 	floor.draw();
+
+	//Draw splash screen
+	Identity(&mVP);
+
+    for(UINT p = 0; p < techDesc.Passes; ++p)
+    {
+        mTech->GetPassByIndex( p )->Apply(0);
+        splash.draw();
+    }
 
 
 	/////Text Drawing Section
@@ -430,6 +472,11 @@ void Game2App::buildFX()
 	mfxAmbientVar = mFX->GetVariableByName("ambientLight");
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
 	mfxLightCount = mFX->GetVariableByName("numberOfLights")->AsScalar();
+	mfxTexVar = mFX->GetVariableByName("useTex")->AsScalar();
+
+	mfxDiffuseMapVar = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+	mfxSpecMapVar    = mFX->GetVariableByName("gSpecMap")->AsShaderResource();
+	mfxTexMtxVar     = mFX->GetVariableByName("gTexMtx")->AsMatrix();
 	//mfxFLIPVar = mFX->GetVariableByName("flip");
 
 }
@@ -442,13 +489,14 @@ void Game2App::buildVertexLayouts()
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D10_INPUT_PER_VERTEX_DATA, 0},
 		{"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0},
 		{"DIFFUSE",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D10_INPUT_PER_VERTEX_DATA, 0},
-		{"SPECULAR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 40, D3D10_INPUT_PER_VERTEX_DATA, 0}
+		{"SPECULAR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 40, D3D10_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 56, D3D10_INPUT_PER_VERTEX_DATA, 0},
 	};
 
 	// Create the input layout
     D3D10_PASS_DESC PassDesc;
     mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
-    HR(md3dDevice->CreateInputLayout(vertexDesc, 4, PassDesc.pIAInputSignature,
+    HR(md3dDevice->CreateInputLayout(vertexDesc, 5, PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize, &mVertexLayout));
 }
  

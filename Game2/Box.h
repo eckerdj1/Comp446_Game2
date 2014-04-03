@@ -7,6 +7,9 @@
 
 #include "d3dUtil.h"
 #include "constants.h"
+#include "CubeTex.h"
+
+class Player;
 
 class Box
 {
@@ -18,8 +21,11 @@ public:
 	void init(ID3D10Device* device, float scale);
 	void init(ID3D10Device* device, float scale, D3DXCOLOR c);
 	void init(ID3D10Device* device, float sX, float sY, float sZ, D3DXCOLOR c1, D3DXCOLOR c2);
+	void draw(Player* p);
 	void draw();
 	void releaseVBuffer();
+	
+	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
 
 	void setVertexColor(DXColor c1,DXColor c2);
 	DXColor getColor1();
@@ -28,6 +34,8 @@ public:
 private:
 	DWORD mNumVertices;
 	DWORD mNumFaces;
+	
+	CubeTex textures;
 
 	float scaleX, scaleY, scaleZ;
 	DXColor color1, color2;
@@ -35,6 +43,8 @@ private:
 	ID3D10Device* md3dDevice;
 	ID3D10Buffer* mVB;
 	ID3D10Buffer* mIB;
+
+	ID3D10EffectShaderResourceVariable* diffuseMapVar;
 };
 
 

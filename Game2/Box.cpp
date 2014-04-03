@@ -4,11 +4,13 @@
 
 #include "Box.h"
 #include "Vertex.h"
+#include "Player.h"
 
 
 Box::Box()
 : mNumVertices(0), mNumFaces(0), md3dDevice(0), mVB(0), mIB(0)
 {
+	diffuseMapVar = 0;
 }
  
 Box::~Box()
@@ -211,7 +213,13 @@ void Box::init(ID3D10Device* device, float scale)
 void Box::init(ID3D10Device* device, float sX, float sY, float sZ, D3DXCOLOR c1,D3DXCOLOR c2)
 {
 	md3dDevice = device;
- 
+	
+	for (int i=0; i<6; ++i)
+	{
+		HR(D3DX10CreateShaderResourceViewFromFile(device, 
+			L"noTex.jpg", 0, 0, &textures.rv[i], 0 ));
+	}
+	
 	mNumVertices = 24;
 	mNumFaces    = 12; // 2 per quad
 
@@ -230,38 +238,44 @@ void Box::init(ID3D10Device* device, float sX, float sY, float sZ, D3DXCOLOR c1,
 	left = Vector3(-1,0,0);
 	front = Vector3(0,0,-1);
 	back = Vector3(0,0,1);
+	// for texture coordinates
+	Vector2 tl = Vector2(0.0f, 0.0f);
+	Vector2 tr = Vector2(1.0f, 0.0f);
+	Vector2 bl = Vector2(0.0f, 1.0f);
+	Vector2 br = Vector2(1.0f, 1.0f);
+
     Vertex vertices[] =
     {
 		//front
-		{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), front, c1, spec1},	//left bottom
-		{D3DXVECTOR3(-0.5f, +1.0f, -0.5f), front, c1, spec1},	//left top
-		{D3DXVECTOR3(+0.5f, +1.0f, -0.5f), front, c1, spec1},	//right top
-		{D3DXVECTOR3(+0.5f, 0.0f, -0.5f), front, c1, spec1},	//right bottom
+		{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), front, c1, spec1, bl},	//left bottom
+		{D3DXVECTOR3(-0.5f, +1.0f, -0.5f), front, c1, spec1, tl},	//left top
+		{D3DXVECTOR3(+0.5f, +1.0f, -0.5f), front, c1, spec1, tr},	//right top
+		{D3DXVECTOR3(+0.5f, 0.0f, -0.5f), front, c1, spec1, br},	//right bottom
 		//back
-		{D3DXVECTOR3(-0.5f, 0.0f, +0.5f), back, c1, spec1},		//left bottom
-		{D3DXVECTOR3(-0.5f, +1.0f, +0.5f), back, c1, spec1},	//left top
-		{D3DXVECTOR3(+0.5f, +1.0f, +0.5f), back, c1, spec1},	//right top
-		{D3DXVECTOR3(+0.5f, 0.0f, +0.5f), back, c1, spec1},		//right bottom
+		{D3DXVECTOR3(-0.5f, 0.0f, +0.5f), back, c1, spec1, br},		//left bottom
+		{D3DXVECTOR3(-0.5f, +1.0f, +0.5f), back, c1, spec1, tr},	//left top
+		{D3DXVECTOR3(+0.5f, +1.0f, +0.5f), back, c1, spec1, tl},	//right top
+		{D3DXVECTOR3(+0.5f, 0.0f, +0.5f), back, c1, spec1, bl},		//right bottom
 		//right
-		{D3DXVECTOR3(+0.5f, 0.0f, -0.5f), right, c1, spec1},	//bottom front
-		{D3DXVECTOR3(+0.5f, +1.0f, -0.5f), right, c1, spec1},	//top front
-		{D3DXVECTOR3(+0.5f, +1.0f, +0.5f), right, c2, spec2},	//top back
-		{D3DXVECTOR3(+0.5f, 0.0f, +0.5f), right, c2, spec2},	//bottom back
+		{D3DXVECTOR3(+0.5f, 0.0f, -0.5f), right, c1, spec1, bl},	//bottom front
+		{D3DXVECTOR3(+0.5f, +1.0f, -0.5f), right, c1, spec1, tl},	//top front
+		{D3DXVECTOR3(+0.5f, +1.0f, +0.5f), right, c2, spec2, tr},	//top back
+		{D3DXVECTOR3(+0.5f, 0.0f, +0.5f), right, c2, spec2, br},	//bottom back
 		//left
-		{D3DXVECTOR3(-0.5f, 0.0f, +0.5f), left, c2, spec2},		//bottom back
-		{D3DXVECTOR3(-0.5f, +1.0f, +0.5f), left, c2, spec2},	//top back
-		{D3DXVECTOR3(-0.5f, +1.0f, -0.5f), left, c1, spec1},	//top front
-		{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), left, c1, spec1},		//bottom front
+		{D3DXVECTOR3(-0.5f, 0.0f, +0.5f), left, c2, spec2, bl},		//bottom back
+		{D3DXVECTOR3(-0.5f, +1.0f, +0.5f), left, c2, spec2, tl},	//top back
+		{D3DXVECTOR3(-0.5f, +1.0f, -0.5f), left, c1, spec1, tr},	//top front
+		{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), left, c1, spec1, br},		//bottom front
 		//top
-		{D3DXVECTOR3(-0.5f, +1.0f, -0.5f), up, c1, spec1},		//left front
-		{D3DXVECTOR3(-0.5f, +1.0f, +0.5f), up, c2, spec2},		//left back
-		{D3DXVECTOR3(+0.5f, +1.0f, +0.5f), up, c2, spec2},		//right back
-		{D3DXVECTOR3(+0.5f, +1.0f, -0.5f), up, c1, spec1},		//right front
+		{D3DXVECTOR3(-0.5f, +1.0f, -0.5f), up, c1, spec1, bl},		//left front
+		{D3DXVECTOR3(-0.5f, +1.0f, +0.5f), up, c2, spec2, tl},		//left back
+		{D3DXVECTOR3(+0.5f, +1.0f, +0.5f), up, c2, spec2, tr},		//right back
+		{D3DXVECTOR3(+0.5f, +1.0f, -0.5f), up, c1, spec1, br},		//right front
 		//bottom
-		{D3DXVECTOR3(-0.5f, 0.0f, +0.5f), down, c2, spec2},		//left back
-		{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), down, c1, spec1},		//left front
-		{D3DXVECTOR3(+0.5f, 0.0f, -0.5f), down, c1, spec1},		//right front
-		{D3DXVECTOR3(+0.5f, 0.0f, +0.5f), down, c2, spec2}		//right back
+		{D3DXVECTOR3(-0.5f, 0.0f, +0.5f), down, c2, spec2, bl},		//left back
+		{D3DXVECTOR3(-0.5f, 0.0f, -0.5f), down, c1, spec1, tl},		//left front
+		{D3DXVECTOR3(+0.5f, 0.0f, -0.5f), down, c1, spec1, tr},		//right front
+		{D3DXVECTOR3(+0.5f, 0.0f, +0.5f), down, c2, spec2, br}		//right back
     };
 
 	// Scale the box.
@@ -326,8 +340,6 @@ void Box::init(ID3D10Device* device, float sX, float sY, float sZ, D3DXCOLOR c1,
     HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
 }
 
-
-
 void Box::draw()
 {
 	UINT stride = sizeof(Vertex);
@@ -335,7 +347,23 @@ void Box::draw()
 	md3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     md3dDevice->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
 	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
+	if (diffuseMapVar)
+		diffuseMapVar->SetResource(textures.rv[0]);
 	md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
+}
+
+void Box::draw(Player* p)
+{
+	UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+	md3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    md3dDevice->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
+	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
+	for (int i=0; i<mNumFaces/2; ++i)
+	{
+		p->diffuseMapVar->SetResource(p->getTextures().rv[i]);
+		md3dDevice->DrawIndexed(6, i * 6, 0);
+	}
 }
 
 void Box::setVertexColor(DXColor c1,DXColor c2) {
@@ -415,4 +443,9 @@ DXColor Box::getColor2() {
 void Box::releaseVBuffer()
 {
 	mVB->Release();
+}
+
+void Box::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
+{
+	diffuseMapVar = var;
 }

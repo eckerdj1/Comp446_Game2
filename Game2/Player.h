@@ -9,6 +9,7 @@
 #include <string>
 #include "audio.h"
 #include "BodyPart.h"
+#include "CubeTex.h"
 using std::vector;
 using std::string;
 
@@ -23,6 +24,8 @@ public:
 	void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* device);
 	void buildBody();
 
+	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
+
 	void update(float dt);
 	void draw(Matrix);
 	
@@ -32,11 +35,14 @@ public:
 	Vector3 getPosition() {return position;}
 	Vector3 getDirection() {return direction;}
 
+	CubeTex getTextures() {return textures;}
+
 public:
 	D3DXMATRIX mWVP;
 	ID3D10EffectMatrixVariable* mfxWVPVar;
 	ID3D10EffectMatrixVariable* mfxWorldVar;
 	ID3D10EffectTechnique* mTech;
+	ID3D10EffectShaderResourceVariable* diffuseMapVar;
 
 private:
 	string name;
@@ -46,6 +52,10 @@ private:
 	BodyPart *rightLeg, *leftLeg, *rightShin, *leftShin;
 	Vector3 position;
 	Vector3 direction;
+
+	//textures
+	
+	CubeTex textures;
 
 	float height;
 	float width;

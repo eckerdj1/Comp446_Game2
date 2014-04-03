@@ -112,6 +112,7 @@
     <ClInclude Include="BodyPart.h" />
     <ClInclude Include="Box.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="CubeTex.h" />
     <ClInclude Include="d3dApp.h" />
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="Floor.h" />
