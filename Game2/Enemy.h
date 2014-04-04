@@ -3,7 +3,7 @@
 
 #include "Player.h"
 
-class Enemy : Player {
+class Enemy : public Player {
 public:
 	Enemy();
 	~Enemy();

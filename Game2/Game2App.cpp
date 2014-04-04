@@ -21,6 +21,7 @@
 #include "Obstacle.h"
 #include "Light.h"
 #include "Floor.h"
+#include "Level.h"
 
 #include <math.h>
 #include <ctime>
@@ -63,6 +64,7 @@ private:
 	Box lineBox;
 	GameObject outline[11];
 	Player player;
+	Level* level;
 	Floor floor;
 	int numberOfObstacles;
 	vector<Box*> obstacleBoxes;
@@ -268,6 +270,8 @@ void Game2App::initApp()
 	
 	player.setDiffuseMap(mfxDiffuseMapVar);
 	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice);
+
+	level = new Level(md3dDevice);
 
 	
 	mfxLightCount->SetInt(numberOfLights);
