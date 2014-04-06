@@ -9,7 +9,7 @@ public:
 	~Enemy();
 
 	void update(float dt);
-
+	//void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d);
 
 private:
 	bool aiMode;
