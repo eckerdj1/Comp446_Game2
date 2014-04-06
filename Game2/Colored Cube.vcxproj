@@ -108,6 +108,7 @@
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TileObject.cpp" />
+    <ClCompile Include="Tower.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
@@ -133,6 +134,7 @@
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="TileObject.h" />
+    <ClInclude Include="Tower.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
