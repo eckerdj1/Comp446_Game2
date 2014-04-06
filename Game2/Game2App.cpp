@@ -215,7 +215,8 @@ void Game2App::initApp()
 
 
 	floor.init(md3dDevice, 2000, 2000);
-
+	level = new Level(md3dDevice);
+	level->fillLevel("level1.txt");
 	splash.init(md3dDevice, 1.0f, White);
 
 	//initialize texture resources
@@ -271,8 +272,6 @@ void Game2App::initApp()
 	player.setDiffuseMap(mfxDiffuseMapVar);
 	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice);
 
-	level = new Level(md3dDevice);
-
 	
 	mfxLightCount->SetInt(numberOfLights);
 	mfxTexVar->SetInt(0);
@@ -295,6 +294,7 @@ void Game2App::updateScene(float dt)
 
 	player.update(dt);
 	floor.update(dt);
+	level->update(dt);
 
 	if (keyPressed(VK_RIGHT))
 	{
@@ -380,6 +380,13 @@ void Game2App::drawScene()
 	player.setMTech(mTech);
 	player.setEffectVariables(mfxWVPVar, mfxWorldVar);
 	player.draw(mVP);
+	
+
+	//Drawing the level
+	mVP = mView * mProj;
+	level->setMTech(mTech);
+	level->setEffectVariables(mfxWVPVar, mfxWorldVar);
+	level->draw(mVP);
 
 	mfxTexVar->SetInt(0);
 	floor.setMTech(mTech);

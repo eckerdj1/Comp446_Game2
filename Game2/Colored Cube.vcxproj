@@ -109,6 +109,7 @@
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TileObject.cpp" />
     <ClCompile Include="Tower.cpp" />
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
@@ -136,6 +137,7 @@
     <ClInclude Include="TileObject.h" />
     <ClInclude Include="Tower.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
