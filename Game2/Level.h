@@ -18,7 +18,7 @@ class Level {
 private:
 public:
 	vector<Wall> walls;
-	vector<Enemy> enemies;
+	vector<Enemy*> enemies;
 	vector<Light> spotLights;
 private:
 	//vector<Tower> towers;
@@ -34,6 +34,7 @@ private:
 	ID3D10EffectTechnique* mTech;
 	ID3D10EffectMatrixVariable* mfxWVPVar;
 	ID3D10EffectMatrixVariable* mfxWorldVar;
+	ID3D10EffectShaderResourceVariable* diffuseMapVar;
 public:
 	Level();
 	Level(ID3D10Device* device); 
@@ -43,6 +44,7 @@ public:
 	void draw(Matrix mVP);
 	void setMTech(ID3D10EffectTechnique* tech) { mTech = tech; }
 	void setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10EffectMatrixVariable* worldVar);
+	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
 
 
 

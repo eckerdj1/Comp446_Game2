@@ -87,7 +87,7 @@ void Level::fillLevel(string s) {
 		delete wall;
 	}
 	fin >> count;
-	//Enemy* enemy;
+	Enemy* enemy;
 	for (int i = 0; i < count; i++) {
 		std::string type;
 		int segments;
@@ -99,7 +99,7 @@ void Level::fillLevel(string s) {
 			fin >> segments;
 			fin >> posX;
 			fin >> posZ;
-			//enemy = new Enemy;
+			enemy = new Enemy;
 			Light sL;
 			sL.ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 			sL.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -110,12 +110,13 @@ void Level::fillLevel(string s) {
 			sL.spotPow  = 25.0f;
 			sL.range    = 40.0f;
 			spotLights.push_back(sL);
-			//enemy->init("Enemy", Vector3(posX, 0, posZ), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
-			//enemy->addPathPoint(Vector3(posX, 0, posZ));
+			enemy->setDiffuseMap(diffuseMapVar);
+			enemy->init("Enemy", Vector3(posX, 0, posZ), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
+			enemy->addPathPoint(Vector3(posX, 0, posZ));
 			for (int j = 1; j < segments; j++) {
 				fin >> posX;
 				fin >> posZ;
-				//enemy->addPathPoint(Vector3(posX, 0, posZ));
+				enemy->addPathPoint(Vector3(posX, 0, posZ));
 			}
 		} else if (type == "random") {
 			/*fin >> posX;
@@ -130,8 +131,7 @@ void Level::fillLevel(string s) {
 			fin >> boundY2;
 			enemy->setBounds(Vector2(boundX1, boundY1), Vector2(boundY1, boundY2));*/
 		}
-		//enemies.push_back(*enemy);
-		//delete enemy;
+		enemies.push_back(enemy);
 		int temp = 0;
 		temp++;
 	}	
@@ -149,7 +149,7 @@ void Level::fillLevel(string s) {
 
 	fin >> exitLoc.x;
 	fin >> exitLoc.z;
-	//build a landing area for the destination
+	//build a landing area for the exit destination
 	wall = new Wall;
 	wall->init(md3dDevice, Vector3(exitLoc.x*enlargeByC, 0.0f, exitLoc.z*enlargeByC), Vector3(4.0f*enlargeByC, 1.0f, 4.0f*enlargeByC), Green);
 	walls.push_back(*wall);
@@ -165,9 +165,9 @@ void Level::update(float dt) {
 	for(int i = 0; i < walls.size(); i++) {
 		walls[i].update(dt);
 	}
-	//for (int i = 0; i < enemies.size(); i++) {
-	//	enemies[i].update(dt);
-	//}
+	for (int i = 0; i < enemies.size(); i++) {
+		enemies[i]->update(dt);
+	}
 }
 
 void Level::draw(Matrix mVP) {
@@ -178,10 +178,15 @@ void Level::draw(Matrix mVP) {
 		mfxWorldVar->SetMatrix(walls[i].getWorldMatrix());
 		walls[i].draw();
 	}
-	//for (int i = 0; i < enemies.size(); i++) {
-	//	enemies[i].setMTech(mTech);
-	//	enemies[i].setEffectVariables(mfxWVPVar, mfxWorldVar);
-	//	enemies[i].draw(mVP);
-	//}
+	for (int i = 0; i < enemies.size(); i++) {
+		enemies[i]->setMTech(mTech);
+		enemies[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
+		enemies[i]->draw(mVP);
+	}
 
+}
+
+void Level::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
+{
+	diffuseMapVar = var;
 }

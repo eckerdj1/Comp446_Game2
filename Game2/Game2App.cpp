@@ -209,7 +209,6 @@ void Game2App::initApp()
 	//audio->playCue(MAIN_TRACK);
 
 	srand(time(0));
-
 	left = Vector3(1,0,0);
 	right = Vector3(-1,0,0);
 	forward = Vector3(0,0,-1);
@@ -221,6 +220,7 @@ void Game2App::initApp()
 
 	floor.init(md3dDevice, 2000, 2000);
 	level = new Level(md3dDevice);
+	level->setDiffuseMap(mfxDiffuseMapVar);
 	level->fillLevel("level1.txt");
 	splash.init(md3dDevice, 1.0f, White);
 
@@ -411,6 +411,7 @@ void Game2App::drawScene()
 	
 
 	//Drawing the level
+	mfxTexVar->SetInt(0);
 	mVP = mView * mProj;
 	level->setMTech(mTech);
 	level->setEffectVariables(mfxWVPVar, mfxWorldVar);
