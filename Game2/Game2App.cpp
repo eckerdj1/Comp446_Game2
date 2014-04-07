@@ -243,6 +243,9 @@ void Game2App::initApp()
 
 
 	//init lights - using pointlights
+	// parallel - 0
+	// point - 1
+	// spotlight - 2
 	lightType = 1;
 	int rows = 5, cols = 6;
 	numberOfLights = rows * cols;
