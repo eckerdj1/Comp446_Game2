@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include <random>
 
 Enemy::Enemy()
 {
@@ -12,8 +13,8 @@ Enemy::Enemy()
 	gameTime = 0;
 
 	aiMode = RANDOM;
-	xBounds = Vector2(0.0f, 0.0f);
-	zBounds = Vector2(0.0f, 0.0f);
+	xBounds = Vector2(-10.0f, 10.0f);
+	zBounds = Vector2(-10.0f, 10.0f);
 	pathIndex = 0;
 }
 
@@ -170,62 +171,76 @@ void Enemy::update(float dt)
 
 	switch(aiMode) {
 	case RANDOM:
+		//Check if first time through. If so, select random waypoint within bounds
+		if(aiPath.size() == 0) {
+			/*float xRange;
+			float zRange;
+			float tempX1, tempX2, xOffset;
+			float tempZ1, tempZ2, zOffset;
+			
+			if(xBounds.x < 0) {tempX1 = - xBounds.x;} else {tempX1 = xBounds.x;}
+			if(xBounds.y < 0) {tempX2 = - xBounds.y;} else {tempX2 = xBounds.y;}
+			if(zBounds.x < 0) {tempZ1 = - zBounds.x;} else {tempZ1 = zBounds.x;}
+			if(zBounds.y < 0) {tempZ2 = - zBounds.y;} else {tempZ2 = zBounds.y;}
+
+			xRange = tempX1 + tempX2;
+			zRange = tempZ1 + tempZ2;*/
+
+			float xRand, zRand;
+			std::random_device rseed;
+			std::mt19937 rng(rseed());
+			std::uniform_int<int> dist1(xBounds.x,xBounds.y);
+			xRand = dist1(rng);
+			std::uniform_int<int> dist2(zBounds.x,zBounds.y);
+			zRand = dist2(rng);
+
+			aiPath.push_back(Vector3(xRand, position.y, zRand));
+		}
+
 		//Check if close to destination
 		//	If so, calculate and set new destination
+		if((position.x < aiPath[0].x + .001f || position.x > aiPath[0].x - .001f)
+		&&(position.z < aiPath[0].z + .001f || position.z > aiPath[0].z - .001f))
+		{
+			float xRand, zRand;
+			std::random_device rseed;
+			std::mt19937 rng(rseed());
+			std::uniform_int<int> dist1(xBounds.x, xBounds.y);
+			xRand = dist1(rng);
+			std::uniform_int<int> dist2(zBounds.x, zBounds.y);
+			zRand = dist2(rng);
 
+			aiPath[0] = Vector3(xRand, position.y, zRand);
+		}
 
-
-
+		//Move toward waypoint, updating both position and direction
+		direction = aiPath[0] - position;
+		D3DXVec3Normalize(&direction, &direction);
+		position += direction * speed * dt;
+		moving = true;
 
 		break;
 	case PATH:
+		//Check if close to waypoint
+		//	If so, calculate and set new waypoint
+		if((position.x < aiPath[pathIndex].x + .001f || position.x > aiPath[pathIndex].x - .001f)
+		&&(position.z < aiPath[pathIndex].z + .001f || position.z > aiPath[pathIndex].z - .001f))
+		{
+			pathIndex ++;
+			if(pathIndex == aiPath.size())
+				pathIndex = 0;
 
+			direction = aiPath[pathIndex] - position;
+			D3DXVec3Normalize(&direction, &direction);
+		}
 
-
-
-
-
+		//Move toward waypoint, updating position
+		position += direction * speed * dt;
+		moving = true;
 
 		break;
 	}
 	
-	/*
-	if (keyPressed(PlayerSprintKey))
-	{
-		speed = sprintBoost;
-		torso->setRotX(ToRadian(15));
-		sprinting = true;
-	}
-	else
-	{
-		speed = normalSpeed;
-		torso->setRotX(ToRadian(0));
-	}
-	if (keyPressed(PlayerForwardKey))
-	{
-		//torso->setSpeed(speed);
-		position += direction * speed * dt;
-		moving = true;
-	}
-	if (keyPressed(PlayerBackKey))
-	{
-		position -= direction * speed * dt;
-		moving = true;
-	}
-	if (!moving)
-		elapsed = 0;
-	if (keyPressed(PlayerRightKey))
-	{
-		dirTheta += turnSpeed * dt;
-		if (dirTheta > 180 || dirTheta < -180)
-			dirTheta = -dirTheta;
-	}
-	if (keyPressed(PlayerLeftKey))
-	{
-		dirTheta -= turnSpeed * dt;
-		if (dirTheta > 180 || dirTheta < -180)
-			dirTheta = -dirTheta;
-	}*/
 
 	direction.x = sinf(dirTheta);
 	direction.z = cosf(dirTheta);
@@ -238,7 +253,6 @@ void Enemy::update(float dt)
 	D3DXVec3Normalize(&spotLight->dir, &(torso->getDirection()));
 	
 	//	leg movement
-	
 	float normPos = 175;
 	float legRot = sin(elapsed * limbSpeed);
 	float phase = 0;
@@ -319,7 +333,6 @@ void Enemy::update(float dt)
 	leftShin->update(dt);
 	torso->update(dt);
 	
-
 }
 
 void Enemy::draw(Matrix mVP)

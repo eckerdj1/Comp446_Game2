@@ -2,6 +2,8 @@
 
 #include "Body.h"
 
+enum AiMode {RANDOM, PATH};
+
 class Enemy : public Body {
 public:
 	Enemy();
@@ -21,6 +23,7 @@ public:
 	Vector3 getPosition() {return position;}
 	Vector3 getDirection() {return direction;}
 
+	void setAImode(AiMode a) {aiMode = a;}
 	void setBounds(Vector2 xLim, Vector2 zLim) {xBounds = xLim; xBounds = zLim;}
 	void addPathPoint(Vector3 p) {aiPath.push_back(p);}
 
@@ -52,7 +55,6 @@ private:
 	float limbSpeed;
 	ID3D10Device* device;
 
-	enum AiMode {RANDOM, PATH};
 
 	AiMode aiMode;
 	Vector2 xBounds;
