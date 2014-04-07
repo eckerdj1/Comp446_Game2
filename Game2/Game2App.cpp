@@ -310,6 +310,10 @@ void Game2App::updateScene(float dt)
 	float gameTime = mTimer.getGameTime();
 
 	Vector3 oldPlayerPos = player.getPosition();
+	vector<Vector3> oldPerimeter;
+	for (int i = 0; i < player.perimeter.size(); i++) {
+		oldPerimeter.push_back(player.perimeter[i]);
+	}
 
 	player.update(dt);
 	floor.update(dt);
@@ -322,8 +326,14 @@ void Game2App::updateScene(float dt)
 		}
 	}
 	for (int i = 0; i < level->walls.size(); i++) {
-		if (level->walls[i].contains(player.getPosition())) {
-			player.setPosition(oldPlayerPos);
+		for (int j = 0; j < player.perimeter.size(); j++) {
+			if (level->walls[i].contains(player.perimeter[j])) {
+				player.setPosition(oldPlayerPos);
+				for (int k = 0; k < player.perimeter.size(); k++) {
+					player.perimeter[k] = oldPerimeter[k];
+				}
+				//level->walls[i].setInActive();
+			}
 		}
 	}
 
