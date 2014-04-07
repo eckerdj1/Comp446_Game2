@@ -31,11 +31,38 @@ void Level::fillLevel(string s) {
 	fin >> levelDimensions.z;
 	levelDimensions.x*=enlargeByC;
 	levelDimensions.z*=enlargeByC;
+	// make the four walls to surround the floor
+	Wall* wall;
+	for (int i = 0; i < 4; i++) {
+		wall = new Wall;
+		Vector3 position;
+		Vector3 scale;
+		switch(i) {
+		case 0:
+			position = Vector3(-levelDimensions.x/2, 0.0f, 0.0f);
+			scale = Vector3(3.0f, 20.0f, levelDimensions.z);
+			break;
+		case 1:
+			position = Vector3(0.0f, 0.0f, levelDimensions.z/2);
+			scale = Vector3(levelDimensions.x, 20.0f, 3.0f);
+			break;
+		case 2:
+			position = Vector3(levelDimensions.x/2, 0.0f, 0.0f);
+			scale = Vector3(3.0f, 20.0f, levelDimensions.z);
+			break;
+		case 3:
+			position = Vector3(0.0f, 0.0f, -levelDimensions.z/2);
+			scale = Vector3(levelDimensions.x, 20.0f, 3.0f);
+			break;
+		}
+		wall->init(md3dDevice, position, scale);
+		walls.push_back(*wall);
+		delete wall;
+	}
 
 	int count = 0;
 	fin >> count;
-	Wall* wall;
-	for (int i = 0; i < count; i++) {
+	for (int i = 4; i < count+4; i++) {
 		// walls
 		float x1, x2, z1, z2;
 		fin >> x1 >> z1 >> x2 >> z2;
@@ -53,7 +80,7 @@ void Level::fillLevel(string s) {
 			zLength*=enlargeByC;
 		}
 		//assuming the x,z position is at the center of the box
-		Vector3 position = Vector3(xLength/2, 0, zLength/2);
+		Vector3 position = Vector3(((x1*enlargeByC)) + (xLength/2), 0, ((z1*enlargeByC)) + (zLength/2));
 		wall = new Wall;
 		wall->init(md3dDevice, position, Vector3(xLength, 20.0f, zLength));
 		walls.push_back(*wall);
