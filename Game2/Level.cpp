@@ -163,7 +163,7 @@ void Level::fillLevel(string s) {
 }
 
 void Level::update(float dt) {
-
+	
 	for(int i = 0; i < walls.size(); i++) {
 		walls[i].update(dt);
 	}

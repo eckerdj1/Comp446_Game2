@@ -218,7 +218,7 @@ void Game2App::initApp()
 	zero = Vector3(0,0,0);
 
 
-	floor.init(md3dDevice, 2000, 2000);
+	floor.init(md3dDevice, 3000, 3000);
 	level = new Level(md3dDevice);
 	level->setDiffuseMap(mfxDiffuseMapVar);
 	level->fillLevel("level1.txt");
@@ -239,7 +239,7 @@ void Game2App::initApp()
 	camTurnSpeed = 5;
 	zoomSpeed = 5;
 	maxZoom = 10.0f;
-	minZoom = 0.5f;
+	minZoom = .8f;
 
 
 	//init lights - using pointlights
@@ -309,10 +309,23 @@ void Game2App::updateScene(float dt)
 
 	float gameTime = mTimer.getGameTime();
 
+	Vector3 oldPlayerPos = player.getPosition();
 
 	player.update(dt);
 	floor.update(dt);
 	level->update(dt);
+
+	//collision stuff
+	for (int i = 0; i < level->pickups.size(); i++) {
+		if (level->pickups[i].contains(player.getPosition())) {
+			level->pickups[i].setInActive();
+		}
+	}
+	for (int i = 0; i < level->walls.size(); i++) {
+		if (level->walls[i].contains(player.getPosition())) {
+			player.setPosition(oldPlayerPos);
+		}
+	}
 
 	if (keyPressed(VK_RIGHT))
 	{

@@ -34,6 +34,7 @@ public:
 	void setEffectVariables(ID3D10EffectMatrixVariable*, ID3D10EffectMatrixVariable*);
 	void Player::setLightingVar(Light* light);
 	Vector3 getPosition() {return position;}
+	void setPosition(Vector3 pos) { position = pos; }
 	Vector3 getDirection() {return direction;}
 
 private:
