@@ -12,6 +12,8 @@ Enemy::Enemy()
 	turnSpeed = 5;
 	gameTime = 0;
 
+	elapsed = 0;
+
 	aiMode = RANDOM;
 	xBounds = Vector2(-10.0f, 10.0f);
 	zBounds = Vector2(-10.0f, 10.0f);
@@ -195,36 +197,50 @@ void Enemy::update(float dt)
 			zRand = dist2(rng);
 
 			aiPath.push_back(Vector3(xRand, position.y, zRand));
+			direction = aiPath[0] - position;
+			D3DXVec3Normalize(&direction, &direction);
 		}
 
 		//Check if close to destination
 		//	If so, calculate and set new destination
-		if((position.x < aiPath[0].x + .001f || position.x > aiPath[0].x - .001f)
-		&&(position.z < aiPath[0].z + .001f || position.z > aiPath[0].z - .001f))
+		if(((position.x < (aiPath[pathIndex].x + 1.0f)) && (position.x > (aiPath[pathIndex].x - 1.0f)))
+		&&((position.z < (aiPath[pathIndex].z + 1.0f)) && (position.z > (aiPath[pathIndex].z - 1.0f))))
 		{
 			float xRand, zRand;
+
 			std::random_device rseed;
 			std::mt19937 rng(rseed());
+
 			std::uniform_int<int> dist1(xBounds.x, xBounds.y);
 			xRand = dist1(rng);
 			std::uniform_int<int> dist2(zBounds.x, zBounds.y);
 			zRand = dist2(rng);
 
 			aiPath[0] = Vector3(xRand, position.y, zRand);
+			direction = aiPath[0] - position;
+			D3DXVec3Normalize(&direction, &direction);
+
+			elapsed = 0;
 		}
 
 		//Move toward waypoint, updating both position and direction
-		direction = aiPath[0] - position;
-		D3DXVec3Normalize(&direction, &direction);
+		if(pathIndex == 0)
+			OutputDebugString(L"0\n");
+		else
+			OutputDebugString(L"1\n");
+
+
 		position += direction * speed * dt;
 		moving = true;
 
 		break;
 	case PATH:
+
+
 		//Check if close to waypoint
 		//	If so, calculate and set new waypoint
-		if((position.x < aiPath[pathIndex].x + .001f || position.x > aiPath[pathIndex].x - .001f)
-		&&(position.z < aiPath[pathIndex].z + .001f || position.z > aiPath[pathIndex].z - .001f))
+		if(((position.x < (aiPath[pathIndex].x + 1.0f)) && (position.x > (aiPath[pathIndex].x - 1.0f)))
+		&&((position.z < (aiPath[pathIndex].z + 1.0f)) && (position.z > (aiPath[pathIndex].z - 1.0f))))
 		{
 			pathIndex ++;
 			if(pathIndex == aiPath.size())
@@ -232,9 +248,13 @@ void Enemy::update(float dt)
 
 			direction = aiPath[pathIndex] - position;
 			D3DXVec3Normalize(&direction, &direction);
+
+			elapsed = 0;
 		}
 
 		//Move toward waypoint, updating position
+		direction = aiPath[pathIndex] - position;
+		D3DXVec3Normalize(&direction, &direction);
 		position += direction * speed * dt;
 		moving = true;
 
@@ -242,8 +262,8 @@ void Enemy::update(float dt)
 	}
 	
 
-	direction.x = sinf(dirTheta);
-	direction.z = cosf(dirTheta);
+	//direction.x = sinf(dirTheta);
+	//direction.z = cosf(dirTheta);
 	torso->setDirection(direction);
 	torso->setPosition(Vector3(position.x, position.y + height * 0.5f, position.z));
 	

@@ -24,7 +24,7 @@ public:
 	Vector3 getDirection() {return direction;}
 
 	void setAImode(AiMode a) {aiMode = a;}
-	void setBounds(Vector2 xLim, Vector2 zLim) {xBounds = xLim; xBounds = zLim;}
+	void setBounds(Vector2 xLim, Vector2 zLim) {xBounds = xLim; zBounds = zLim;}
 	void addPathPoint(Vector3 p) {aiPath.push_back(p);}
 
 private:
