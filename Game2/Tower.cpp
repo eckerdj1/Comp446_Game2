@@ -18,8 +18,6 @@ Tower::~Tower()
 	delete column;
 	delete eye;
 	delete attackBeam;
-
-	Tower::Player::~Player();
 }
 
 void Tower::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d)
@@ -37,7 +35,7 @@ void Tower::init(string n, Vector3 pos, float spd, float height, float width, fl
 	this->depth = depth;
 	buildBody();
 
-	Tower::Player::init(n, pos, spd, height, width, depth, d);
+	//Tower::Body::init(n, pos, spd, height, width, depth, d);
 }
 
 void Tower::setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10EffectMatrixVariable* worldVar)
@@ -59,7 +57,7 @@ void Tower::buildBody() {
 	b ->init(device, width, height, depth, DarkRed, DarkRed);
 	b->setDiffuseMap(diffuseMapVar);
 	base->init("base", b, bPos, direction, Vector3(width, height, depth), speed);
-	base->setPlayer(this);
+	base->setBody(this);
 
 	Vector3 cPos = position;
 	//cPos += height //offset
@@ -67,7 +65,7 @@ void Tower::buildBody() {
 	b ->init(device, width, height, depth, DarkRed, DarkRed);
 	b->setDiffuseMap(diffuseMapVar);
 	column->init("column", b, cPos, direction, Vector3(width, height, depth), speed);
-	column->setPlayer(this);
+	column->setBody(this);
 
 	Vector3 hPos = position;
 	//hPos += height //offset
@@ -75,7 +73,7 @@ void Tower::buildBody() {
 	b ->init(device, width, height, depth, DarkRed, DarkRed);
 	b->setDiffuseMap(diffuseMapVar);
 	eye->init("eye", b, hPos, direction, Vector3(width, height, depth), speed);
-	eye->setPlayer(this);
+	eye->setBody(this);
 
 	Vector3 aPos = position;
 	//aPos += height //offset
@@ -83,15 +81,13 @@ void Tower::buildBody() {
 	b ->init(device, width, height, depth, DarkRed, DarkRed);
 	b->setDiffuseMap(diffuseMapVar);
 	attackBeam->init("attackBeam", b, aPos, direction, Vector3(width, height, depth), speed);
-	attackBeam->setPlayer(this);
+	attackBeam->setBody(this);
 
 	base->addChild(column);
 	base->addChild(eye);
 	base->addChild(attackBeam);
 
 	b = 0;
-
-	//Tower::Player::buildBody();
 }
 
 void Tower::update(float dt) {
@@ -108,8 +104,6 @@ void Tower::update(float dt) {
 	eye->update(dt);
 	column->update(dt);
 	base->update(dt);
-
-	Tower::Player::update(dt);
 }
 
 void Tower::draw(Matrix mVP)

@@ -79,7 +79,7 @@ void Player::buildBody()
 	b->init(device, width, height * 0.36f, depth, LightBlue, LightBlue);
 	b->setDiffuseMap(diffuseMapVar);
 	torso->init("torso", b, tPos, direction, Vector3(width, height * 0.36f, depth), speed);
-	torso->setPlayer(this);
+	torso->setBody(this);
 
 	// head
 	b = new Box();
@@ -88,7 +88,7 @@ void Player::buildBody()
 	Vector3 hPos = position;
 	hPos.y += height * 0.38f;
 	head->init("head", b, hPos, direction, Vector3(width * 0.45f, height * 0.12f, depth * 0.9f), speed);
-	head->setPlayer(this);
+	head->setBody(this);
 	head->setRoot(torso);
 
 	// right arm
@@ -99,7 +99,7 @@ void Player::buildBody()
 	b->init(device, width * 0.2f, height * 0.37f, depth * 0.5f, LightBlue, LightBlue);
 	b->setDiffuseMap(diffuseMapVar);
 	rightArm->init("rightArm", b, raPos, direction, Vector3(width * 0.2f, height * 0.37f, depth * 0.5f), speed);
-	rightArm->setPlayer(this);
+	rightArm->setBody(this);
 	rightArm->setRoot(torso);
 
 	// left arm
@@ -109,7 +109,7 @@ void Player::buildBody()
 	b->init(device, width * 0.2f, height * 0.37f, depth * 0.5f, LightBlue, LightBlue);
 	b->setDiffuseMap(diffuseMapVar);
 	leftArm->init("leftArm", b, laPos, direction, Vector3(width * 0.2f, height * 0.37f, depth * 0.5f), speed);
-	leftArm->setPlayer(this);
+	leftArm->setBody(this);
 	leftArm->setRoot(torso);
 
 	// right leg
@@ -119,7 +119,7 @@ void Player::buildBody()
 	b->init(device, width * 0.25f, height * 0.21f, depth * 0.5f, LightBlue, LightBlue);
 	b->setDiffuseMap(diffuseMapVar);
 	rightLeg->init("rightLeg", b, rlPos, direction, Vector3(width * 0.25f, height * 0.21f, depth * 0.5f), speed);
-	rightLeg->setPlayer(this);
+	rightLeg->setBody(this);
 	rightLeg->setRoot(torso);
 
 	// left leg
@@ -129,7 +129,7 @@ void Player::buildBody()
 	b->init(device, width * 0.25f, height * 0.21f, depth * 0.5f, LightBlue, LightBlue);
 	b->setDiffuseMap(diffuseMapVar);
 	leftLeg->init("leftLeg", b, llPos, direction, Vector3(width * 0.25f, height * 0.21f, depth * 0.5f), speed);
-	leftLeg->setPlayer(this);
+	leftLeg->setBody(this);
 	leftLeg->setRoot(torso);
 
 	//right shin
@@ -139,7 +139,7 @@ void Player::buildBody()
 	b->init(device, width * 0.24f, height * 0.20f, depth * 0.5f, LightBlue, LightBlue);
 	b->setDiffuseMap(diffuseMapVar);
 	rightShin->init("rightShin", b, rsPos, direction, Vector3(width * 0.24f, height * 0.20f, depth * 0.5f), speed);
-	rightShin->setPlayer(this);
+	rightShin->setBody(this);
 	rightShin->setRoot(rightLeg);
 
 	//left shin
@@ -149,7 +149,7 @@ void Player::buildBody()
 	b->init(device, width * 0.24f, height * 0.20f, depth * 0.5f, LightBlue, LightBlue);
 	b->setDiffuseMap(diffuseMapVar);
 	leftShin->init("leftShin", b, lsPos, direction, Vector3(width * 0.24f, height * 0.20f, depth * 0.5f), speed);
-	leftShin->setPlayer(this);
+	leftShin->setBody(this);
 	leftShin->setRoot(leftLeg);
 
 	// connect body parts

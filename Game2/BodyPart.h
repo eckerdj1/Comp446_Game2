@@ -8,11 +8,11 @@
 #include <vector>
 #include <string>
 #include "audio.h"
-#include "Player.h"
+#include "Body.h"
 using std::vector;
 using std::string;
 
-class Player;
+class Body;
 
 class BodyPart : public GameObject
 {
@@ -46,11 +46,11 @@ public:
 	void draw(Matrix mVP);
 
 	void addChild(BodyPart* part);
-	void setPlayer(Player* p);
+	void setBody(Body* p);
 	void setRoot(BodyPart* part);
 
 private:
-	Player* player;
+	Body* body;
 	string name;
 	BodyPart* root;
 	vector<BodyPart*> children;

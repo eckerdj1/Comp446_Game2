@@ -22,9 +22,9 @@ void BodyPart::addChild(BodyPart* part)
 	children.push_back(part);
 }
 
-void BodyPart::setPlayer(Player* p)
+void BodyPart::setBody(Body* p)
 {
-	player = p;
+	body = p;
 }
 void BodyPart::setRoot(BodyPart* part)
 {
@@ -70,9 +70,9 @@ void BodyPart::traverse(Matrix m)
 
 void BodyPart::draw(Matrix mVP)
 {
-	player->mfxWorldVar->SetMatrix(world);
-	player->mfxWVPVar->SetMatrix(world * mVP);
-	player->mTech->GetPassByIndex(0)->Apply(0);
+	body->mfxWorldVar->SetMatrix(world);
+	body->mfxWVPVar->SetMatrix(world * mVP);
+	body->mTech->GetPassByIndex(0)->Apply(0);
 	if (name == "head")
 	{
 		box->draw();

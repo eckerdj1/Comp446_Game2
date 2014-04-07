@@ -1,11 +1,11 @@
-#ifndef TOWER_H
-#define TOWER_H
+#pragma once
 
 #include "BodyPart.h"
 #include "GameObject.h"
 #include "Box.h"
+#include "Body.h"
 
-class Tower : Player{
+class Tower : public Body{
 public:
 	Tower();
 	~Tower(void);
@@ -15,20 +15,20 @@ public:
 
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
 
-	virtual void update(float dt);
+	void update(float dt);
 	void draw(Matrix);
 	
-	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
+	void setMTech(ID3D10EffectTechnique* m) {mTech = m;}
 	void setEffectVariables(ID3D10EffectMatrixVariable*, ID3D10EffectMatrixVariable*);
 
 	Vector3 getPosition() {return position;}
 	Vector3 getDirection() {return direction;}
-	/*
+	
 	D3DXMATRIX mWVP;
 	ID3D10EffectMatrixVariable* mfxWVPVar;
 	ID3D10EffectMatrixVariable* mfxWorldVar;
 	ID3D10EffectTechnique* mTech;
-	ID3D10EffectShaderResourceVariable* diffuseMapVar;*/
+	ID3D10EffectShaderResourceVariable* diffuseMapVar;
 
 private:
 	string name;
@@ -59,6 +59,3 @@ private:
 	ID3D10Device* device;
 
 };
-
-
-#endif

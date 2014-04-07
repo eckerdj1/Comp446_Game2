@@ -10,13 +10,14 @@
 #include "audio.h"
 #include "BodyPart.h"
 #include "CubeTex.h"
+#include "Body.h"
 using std::vector;
 using std::string;
 
 class BodyPart;
+class Body;
 
-class Player
-{
+class Player : public Body {
 public:
 	Player();
 	~Player(void);
@@ -26,23 +27,14 @@ public:
 
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
 
-	virtual void update(float dt);
+	void update(float dt);
 	void draw(Matrix);
 	
-	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
+	void setMTech(ID3D10EffectTechnique* m) { mTech = m;}
 	void setEffectVariables(ID3D10EffectMatrixVariable*, ID3D10EffectMatrixVariable*);
 
 	Vector3 getPosition() {return position;}
 	Vector3 getDirection() {return direction;}
-
-
-public:
-	D3DXMATRIX mWVP;
-	ID3D10EffectMatrixVariable* mfxWVPVar;
-	ID3D10EffectMatrixVariable* mfxWorldVar;
-	ID3D10EffectTechnique* mTech;
-	ID3D10EffectShaderResourceVariable* diffuseMapVar;
-
 
 private:
 	string name;
