@@ -163,7 +163,6 @@ void Enemy::buildBody()
 void Enemy::update(float dt)
 {
 	//No keyboard input, just preset patterns
-
 	gameTime += dt;
 	elapsed += dt;
 	

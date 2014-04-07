@@ -136,13 +136,15 @@ void Level::fillLevel(string s) {
 		temp++;
 	}	
 	fin >> count;
+	Pickup* pickup;
 	for (int i = 0; i < count; i++) {
 		float posX;
 		float posZ;
 		fin >> posX;
 		fin >> posZ;
-		//do parts stuff
-		//not much to do here until the parts are done
+		pickup = new Pickup;
+		pickup->init(md3dDevice, Vector3(posX*enlargeByC, 0.0f, posZ*enlargeByC), Vector3(2.0*enlargeByC, 2.0*enlargeByC, 2.0*enlargeByC), D3DXCOLOR(.4f, .4f, .4f, 1.0f));
+		pickups.push_back(*pickup);
 	}
 	fin >> playerLoc.x;
 	fin >> playerLoc.z;
@@ -165,9 +167,12 @@ void Level::update(float dt) {
 	for(int i = 0; i < walls.size(); i++) {
 		walls[i].update(dt);
 	}
-	for (int i = 0; i < enemies.size(); i++) {
-		enemies[i]->update(dt);
+	for (int i = 0; i < pickups.size(); i++) {
+		pickups[i].update(dt);
 	}
+	/*for (int i = 0; i < enemies.size(); i++) {
+		enemies[i]->update(dt);
+	}*/
 }
 
 void Level::draw(Matrix mVP) {
@@ -178,11 +183,17 @@ void Level::draw(Matrix mVP) {
 		mfxWorldVar->SetMatrix(walls[i].getWorldMatrix());
 		walls[i].draw();
 	}
-	for (int i = 0; i < enemies.size(); i++) {
-		enemies[i]->setMTech(mTech);
-		enemies[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
-		enemies[i]->draw(mVP);
+	for (int i = 0; i < pickups.size(); i++) {
+		pickups[i].setMTech(mTech);
+		mfxWVPVar->SetMatrix(pickups[i].getWorldMatrix() * mVP);
+		mfxWorldVar->SetMatrix(pickups[i].getWorldMatrix());
+		pickups[i].draw();
 	}
+	//for (int i = 0; i < enemies.size(); i++) {
+	//	enemies[i]->setMTech(mTech);
+	//	enemies[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
+	//	enemies[i]->draw(mVP);
+	//}
 
 }
 

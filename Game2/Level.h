@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Wall.h"
+#include "Pickup.h"
 //#include "Tower"
 
 
@@ -18,6 +19,7 @@ class Level {
 private:
 public:
 	vector<Wall> walls;
+	vector<Pickup> pickups;
 	vector<Enemy*> enemies;
 	vector<Light> spotLights;
 private:
