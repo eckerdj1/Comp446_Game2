@@ -7,11 +7,14 @@
 #include "lighthelper.fx"
  
 int numberOfLights;
+//int numberOfSpotLights;
 
 cbuffer cbPerFrame
 {
 	Light pointLights[30];
 	Light ambientLight;
+	//Light spotLights[30];
+	Light spotLight;
 	int gLightType; 
 	float3 gEyePosW;
 	int useTex;
@@ -113,6 +116,11 @@ float4 PS(VS_OUT pIn) : SV_Target
 	}
 
 	litColor += ambientLight.ambient;
+
+	//for (int i = 0; i < numberOfSpotLights; i++) {
+		//litColor += SpotLight(v, spotLights[i], gEyePosW);
+	//}
+	litColor += Spotlight(v, spotLight, gEyePosW);
 	   
     return float4(litColor, pIn.diffuse.a);
 }

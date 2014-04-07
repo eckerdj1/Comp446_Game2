@@ -10,6 +10,7 @@ Player::Player()
 	dirTheta = 0;
 	turnSpeed = 5;
 	gameTime = 0;
+
 }
 
 Player::~Player()
@@ -22,7 +23,7 @@ Player::~Player()
 	delete leftLeg;
 }
 
-void Player::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d)
+void Player::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d, Light* light)
 {
 	device = d;
 
@@ -48,6 +49,8 @@ void Player::init(string n, Vector3 pos, float spd, float height, float width, f
 	this->height = height;
 	this->width = width;
 	this->depth = depth;
+	spotLight = light;
+
 	buildBody();
 }
 
@@ -211,10 +214,14 @@ void Player::update(float dt)
 	direction.z = cosf(dirTheta);
 	torso->setDirection(direction);
 	torso->setPosition(Vector3(position.x, position.y + height * 0.5f, position.z));
+
+	spotLight->pos = torso->getPosition();
+	//spotLight->pos.y += 10.0f;
+	//Vector3 normalizedDir = (torso->getDirection()*12)-torso->getPosition();
+	D3DXVec3Normalize(&spotLight->dir, &(torso->getDirection()));
 	
 
 	//	leg movement
-	
 	float normPos = 175;
 	float legRot = sin(elapsed * limbSpeed);
 	float phase = 0;
@@ -314,4 +321,8 @@ void Player::draw(Matrix mVP)
 void Player::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
 {
 	diffuseMapVar = var;
+}
+
+void Player::setLightingVar(Light* light) {
+	spotLight = light;
 }

@@ -25,9 +25,10 @@ Enemy::~Enemy()
 	delete leftArm;
 	delete rightLeg;
 	delete leftLeg;
+
 }
 
-void Enemy::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d)
+void Enemy::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d, Light* light)
 {
 	device = d;
 
@@ -40,6 +41,9 @@ void Enemy::init(string n, Vector3 pos, float spd, float height, float width, fl
 	this->height = height;
 	this->width = width;
 	this->depth = depth;
+
+	spotLight = light;
+
 	buildBody();
 }
 
@@ -228,7 +232,11 @@ void Enemy::update(float dt)
 	torso->setDirection(direction);
 	torso->setPosition(Vector3(position.x, position.y + height * 0.5f, position.z));
 	
-
+	spotLight->pos = torso->getPosition();
+	//spotLight->pos.y += 10.0f;
+	//Vector3 normalizedDir = (torso->getDirection()*12)-torso->getPosition();
+	D3DXVec3Normalize(&spotLight->dir, &(torso->getDirection()));
+	
 	//	leg movement
 	
 	float normPos = 175;

@@ -87,20 +87,54 @@ void Level::fillLevel(string s) {
 		delete wall;
 	}
 	fin >> count;
+	//Enemy* enemy;
 	for (int i = 0; i < count; i++) {
+		std::string type;
 		int segments;
-		fin >> segments;
+		fin >> type;
+		float posX;
+		float posZ;
 		//enemy stuff
-		for (int i = 0; i < segments; i++) {
-			float posX;
-			float posZ;
+		if (type == "path") {
+			fin >> segments;
 			fin >> posX;
 			fin >> posZ;
-			//Enemy enemy;
-			//enemy.init("Enemy1", Vector3(posX, 0, posZ), 15, 17, 6, 3.3f, md3dDevice);
-			//enemies.push_back(enemy);
+			//enemy = new Enemy;
+			Light sL;
+			sL.ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL.specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL.att.x    = 1.0f;
+			sL.att.y    = 0.0f;
+			sL.att.z    = 0.0f;
+			sL.spotPow  = 25.0f;
+			sL.range    = 40.0f;
+			spotLights.push_back(sL);
+			//enemy->init("Enemy", Vector3(posX, 0, posZ), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
+			//enemy->addPathPoint(Vector3(posX, 0, posZ));
+			for (int j = 1; j < segments; j++) {
+				fin >> posX;
+				fin >> posZ;
+				//enemy->addPathPoint(Vector3(posX, 0, posZ));
+			}
+		} else if (type == "random") {
+			/*fin >> posX;
+			fin >> posZ;
+			enemy = new Enemy;
+			enemy->init("Enemy", Vector3(posX, 0, posZ), 15, 17, 6, 3.3f, md3dDevice);
+			float boundX1, boundX2;
+			float boundY1, boundY2;
+			fin >> boundX1; 
+			fin >> boundY1;
+			fin >> boundX2;
+			fin >> boundY2;
+			enemy->setBounds(Vector2(boundX1, boundY1), Vector2(boundY1, boundY2));*/
 		}
-	}
+		//enemies.push_back(*enemy);
+		//delete enemy;
+		int temp = 0;
+		temp++;
+	}	
 	fin >> count;
 	for (int i = 0; i < count; i++) {
 		float posX;
@@ -138,5 +172,10 @@ void Level::draw(Matrix mVP) {
 		mfxWorldVar->SetMatrix(walls[i].getWorldMatrix());
 		walls[i].draw();
 	}
+	//for (int i = 0; i < enemies.size(); i++) {
+	//	enemies[i].setMTech(mTech);
+	//	enemies[i].setEffectVariables(mfxWVPVar, mfxWorldVar);
+	//	enemies[i].draw(mVP);
+	//}
 
 }

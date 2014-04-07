@@ -7,7 +7,7 @@ public:
 	Enemy();
 	~Enemy();
 
-	void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* device);
+	void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* device, Light* light);
 	void buildBody();
 
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
@@ -30,6 +30,7 @@ private:
 	BodyPart* head;
 	BodyPart *rightArm, *leftArm;
 	BodyPart *rightLeg, *leftLeg, *rightShin, *leftShin;
+	Light* spotLight;
 	
 	Vector3 position;
 	Vector3 direction;

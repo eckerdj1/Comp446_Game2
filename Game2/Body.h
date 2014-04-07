@@ -11,6 +11,7 @@
 #include "audio.h"
 #include "BodyPart.h"
 #include "CubeTex.h"
+#include "Light.h"
 using std::string;
 
 class Body {
@@ -18,7 +19,7 @@ public:
 	Body(void);
 	~Body(void);
 
-	virtual void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* device) = 0;
+	virtual void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* device, Light* light) = 0;
 	virtual void buildBody() = 0;
 
 	virtual void setDiffuseMap(ID3D10EffectShaderResourceVariable* var) = 0;

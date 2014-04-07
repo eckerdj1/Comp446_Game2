@@ -19,6 +19,7 @@ private:
 public:
 	vector<Wall> walls;
 	vector<Enemy> enemies;
+	vector<Light> spotLights;
 private:
 	//vector<Tower> towers;
 

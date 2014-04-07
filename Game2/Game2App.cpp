@@ -78,7 +78,9 @@ private:
 	//Lighting
 	vector<Light> lights;
 	Light ambientLight;
+	Light spotLight;
 	int numberOfLights;
+	int numberOfSpotLights;
 	int lightType; // 0-parallel, 1-pointlight, 2-spotlight
 	bool useTex;
 
@@ -134,9 +136,12 @@ private:
 	ID3D10EffectMatrixVariable* mfxWorldVar;
 	ID3D10EffectVariable* mfxEyePosVar;
 	vector<ID3D10EffectVariable*> mfxLightVar;
+	vector<ID3D10EffectVariable*> mfxSpotVars;
+	ID3D10EffectVariable* mfxSpotVar;
 	ID3D10EffectVariable* mfxAmbientVar;
 	ID3D10EffectScalarVariable* mfxLightType;
 	ID3D10EffectScalarVariable* mfxLightCount;
+	ID3D10EffectScalarVariable* mfxSpotCount;
 	ID3D10EffectScalarVariable* mfxTexVar;
 	ID3D10EffectMatrixVariable* mfxTexMtxVar;
 
@@ -268,12 +273,22 @@ void Game2App::initApp()
 	buildFX();
 	buildVertexLayouts();
 
-	
+	spotLight.ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	spotLight.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	spotLight.specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	spotLight.att.x    = 1.0f;
+	spotLight.att.y    = 0.0f;
+	spotLight.att.z    = 0.0f;
+	spotLight.spotPow  = 25.0f;
+	spotLight.range    = 40.0f;
 	player.setDiffuseMap(mfxDiffuseMapVar);
-	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice);
+	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, &spotLight);
+	//delete spotLight;
 
 	
 	mfxLightCount->SetInt(numberOfLights);
+	//numberOfSpotLights = level->spotLights.size();
+	//mfxSpotCount->SetInt(numberOfSpotLights);
 	mfxTexVar->SetInt(0);
 }
 
@@ -356,6 +371,16 @@ void Game2App::drawScene()
 	}
 	mfxAmbientVar->SetRawValue(&ambientLight, 0, sizeof(Light));
 	mfxLightType->SetInt(lightType);
+
+	// light for Player
+	mfxSpotVar->SetRawValue(&spotLight, 0, sizeof(Light));
+	// light for Enemies
+	//for (int i = 0; i < numberOfSpotLights; i++) {
+	//	mfxSpotVars.resize(level->spotLights.size());
+	//}
+	//for (int i = 0; i < numberOfSpotLights; i++) {
+	//	mfxSpotVars[i]->SetRawValue(&level->spotLights[i], 0, sizeof(Light));
+	//}
 
 	// set some variables for the shader
 	// set the point to the shader technique
@@ -481,8 +506,15 @@ void Game2App::buildFX()
 		mfxLightVar.push_back(var);
 	}
 	mfxAmbientVar = mFX->GetVariableByName("ambientLight");
+	mfxSpotVar = mFX->GetVariableByName("spotLight");
+	//for (int i = 0; i < numberOfSpotLights; i++)
+	//{
+	//	ID3D10EffectVariable* vars = mFX->GetVariableByName("level->spotLights")->GetElement(i);
+	//	mfxSpotVars.push_back(vars);
+	//}
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
 	mfxLightCount = mFX->GetVariableByName("numberOfLights")->AsScalar();
+	//mfxSpotCount = mFX->GetVariableByName("numberOfSpotLights")->AsScalar();
 	mfxTexVar = mFX->GetVariableByName("useTex")->AsScalar();
 
 	mfxDiffuseMapVar = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
