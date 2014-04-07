@@ -19,7 +19,7 @@ public:
 	Wall();
 
 	void init(Box *b, Vector3 pos, Vector3 dir, Vector3 size, float speed);
-	void init(ID3D10Device* device, Vector3 pos, Vector3 size);
+	void init(ID3D10Device* device, Vector3 pos, Vector3 size, D3DXCOLOR c);
 
 	void setTransX(float x) {transX = x;}
 	void setTransY(float y) {transY = y;}

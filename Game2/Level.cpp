@@ -55,7 +55,7 @@ void Level::fillLevel(string s) {
 			scale = Vector3(levelDimensions.x, 20.0f, 3.0f);
 			break;
 		}
-		wall->init(md3dDevice, position, scale);
+		wall->init(md3dDevice, position, scale, Blue);
 		walls.push_back(*wall);
 		delete wall;
 	}
@@ -82,7 +82,7 @@ void Level::fillLevel(string s) {
 		//assuming the x,z position is at the center of the box
 		Vector3 position = Vector3(((x1*enlargeByC)) + (xLength/2), 0, ((z1*enlargeByC)) + (zLength/2));
 		wall = new Wall;
-		wall->init(md3dDevice, position, Vector3(xLength, 20.0f, zLength));
+		wall->init(md3dDevice, position, Vector3(xLength, 20.0f, zLength), Blue);
 		walls.push_back(*wall);
 		delete wall;
 	}
@@ -146,8 +146,14 @@ void Level::fillLevel(string s) {
 	}
 	fin >> playerLoc.x;
 	fin >> playerLoc.z;
+
 	fin >> exitLoc.x;
 	fin >> exitLoc.z;
+	//build a landing area for the destination
+	wall = new Wall;
+	wall->init(md3dDevice, Vector3(exitLoc.x*enlargeByC, 0.0f, exitLoc.z*enlargeByC), Vector3(4.0f*enlargeByC, 1.0f, 4.0f*enlargeByC), Green);
+	walls.push_back(*wall);
+	delete wall;
 	
 
 	fin.close();

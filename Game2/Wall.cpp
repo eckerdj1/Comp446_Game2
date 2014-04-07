@@ -14,11 +14,11 @@ void Wall::init(Box* b, Vector3 pos, Vector3 dir, Vector3 size, float speed)
 	GameObject::init(b, pos, dir, size, speed);
 }
 
-void Wall::init(ID3D10Device* device, Vector3 pos, Vector3 size) {
+void Wall::init(ID3D10Device* device, Vector3 pos, Vector3 size, D3DXCOLOR c) {
 	
 	Wall::device = device;
 	Box* b = new Box();
-	b->init(device, size.x, size.y, size.z, Green, Green);
+	b->init(device, size.x, size.y, size.z, c, c);
 	GameObject::init(b, pos, Vector3(0,0,0), size, 0);
 	scaleX = size.x;
 	scaleY = size.y;
