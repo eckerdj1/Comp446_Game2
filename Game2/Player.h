@@ -43,6 +43,7 @@ public:
 
 public:
 	bool colliding;
+	bool canStrafe;
 
 private:
 	string name;

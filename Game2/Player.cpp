@@ -11,6 +11,7 @@ Player::Player()
 	turnSpeed = 3.5;
 	gameTime = 0;
 	colliding = false;
+	canStrafe = false;
 	mousePos = Vector2(0.0f, 0.0f);
 	lastMousePos = mousePos;	
 	left = Vector3(1,0,0);
@@ -226,22 +227,25 @@ void Player::update(float dt)
 	}
 	if (!moving)
 		elapsed = 0;
-	if (keyPressed(PlayerRightKey))
+	if (canStrafe)
 	{
-		Vector3 rightStrafe;
-		Cross(&rightStrafe, &up, &direction);
-		position += rightStrafe * normalSpeed * dt;
-		for (int i = 0; i < perimeter.size(); i++) {
-			perimeter[i] += rightStrafe * normalSpeed * dt;
+		if (keyPressed(PlayerRightKey))
+		{
+			Vector3 rightStrafe;
+			Cross(&rightStrafe, &up, &direction);
+			position += rightStrafe * normalSpeed * dt;
+			for (int i = 0; i < perimeter.size(); i++) {
+				perimeter[i] += rightStrafe * normalSpeed * dt;
+			}
 		}
-	}
-	if (keyPressed(PlayerLeftKey))
-	{
-		Vector3 leftStrafe;
-		Cross(&leftStrafe, &direction, &up);
-		position += leftStrafe * normalSpeed * dt;
-		for (int i = 0; i < perimeter.size(); i++) {
-			perimeter[i] += leftStrafe * normalSpeed * dt;
+		if (keyPressed(PlayerLeftKey))
+		{
+			Vector3 leftStrafe;
+			Cross(&leftStrafe, &direction, &up);
+			position += leftStrafe * normalSpeed * dt;
+			for (int i = 0; i < perimeter.size(); i++) {
+				perimeter[i] += leftStrafe * normalSpeed * dt;
+			}
 		}
 	}
 	//dirTheta += float(mousePos.x - lastMousePos.x)* 100.0f * dt;

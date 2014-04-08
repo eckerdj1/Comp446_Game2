@@ -255,6 +255,8 @@ void Level::draw(Matrix mVP) {
 		walls[i].setMTech(mTech);
 		mfxWVPVar->SetMatrix(walls[i].getWorldMatrix() * mVP);
 		mfxWorldVar->SetMatrix(walls[i].getWorldMatrix());
+		if (i == walls.size() - 1)
+			useTexture->SetInt(0);			
 		walls[i].draw();
 	}
 	useTexture->SetInt(1);
