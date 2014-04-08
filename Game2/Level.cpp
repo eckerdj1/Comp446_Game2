@@ -156,7 +156,7 @@ void Level::fillLevel(string s) {
 			fin >> boundX2;
 			fin >> boundZ2;
 			enemy->setPosition(Vector3((boundX1+(boundX2-boundX1)/2)*enlargeByC, 0, (boundZ1+(boundZ2-boundZ1)/2)*enlargeByC));
-			enemy->setBounds(Vector2(boundX1, boundX2), Vector2(boundZ1, boundZ2));
+			enemy->setBounds(Vector2(boundX1, boundX2), Vector2(boundZ1, boundZ2));*/
 		}
 		enemies.push_back(enemy);
 		int temp = 0;
