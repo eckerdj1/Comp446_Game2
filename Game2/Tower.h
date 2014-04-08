@@ -39,6 +39,7 @@ public:
 	Vector3 getDirection() {return direction;}
 	void setDirTheta(float dTh) { dirTheta = dTh; }
 	void addAiRot(Vector2 rotData);
+	float getRange() {return range;}
 	
 private:
 	string name;
@@ -47,6 +48,8 @@ private:
 	BodyPart* eye;
 
 	Light* spotLight;
+
+	float range;
 
 	Vector3 position;
 	Vector3 direction;

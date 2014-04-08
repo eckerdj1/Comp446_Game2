@@ -66,6 +66,36 @@ public:
 	Vector3 bounds[2];
 };
 
+struct _Win
+{
+	HINSTANCE hInstance;    // window app instance
+	HWND hwnd;              // handle for the window
+	HWND hConsole ;         // handle for the console window
+
+	int width, height;
+} win ;
+void initRawinput( HWND hwnd ) ;
+LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam );
+
+
+void printWindowsLastError( char *msg )
+{
+  LPSTR errorString = NULL ;
+
+  int result = FormatMessageA( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                 FORMAT_MESSAGE_FROM_SYSTEM,
+                 0,
+                 GetLastError(),
+                 0,
+                 (LPSTR)&errorString,
+                 0,
+                 0 );
+
+  printf( "%s %s\n", msg, errorString ) ;
+  
+  LocalFree( errorString ) ;
+}
+
 class Game2App : public D3DApp
 {
 public:
@@ -278,7 +308,7 @@ void Game2App::initApp()
 	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
 		L"floor.dds", 0, 0, &mFloorSpec, 0 ));
 
-	wallDetectionIsOn = false;
+	wallDetectionIsOn = true;
 
 	CameraDirection = forward;
 	camPos = Vector3(0.0f, 100.0f, 0.0f);
@@ -335,7 +365,7 @@ void Game2App::initApp()
 
 	level = new Level(md3dDevice);
 	level->setPlayer(&player);
-	level->fillLevel("level1.txt");
+	level->fillLevel("level2.txt");
 	numberOfSpotLights = level->spotLights.size();
 	
 	floor.init(md3dDevice, level->getLevelSize().x * 4, level->getLevelSize().y * 4);
@@ -353,6 +383,8 @@ void Game2App::initApp()
 	mfxLightCount->SetInt(numberOfLights);
 	mfxSpotCount->SetInt(numberOfSpotLights);
 	mfxTexVar->SetInt(0);
+
+	initRawinput( win.hwnd ) ;
 }
 
 void Game2App::onResize()
@@ -367,7 +399,7 @@ void Game2App::updateScene(float dt)
 {
 	D3DApp::updateScene(dt);
 	lastMousePos = mousePos;
-	mousePos = Vector2(input->getMouseX(), input->getMouseY());
+	mousePos = Vector2(input->getMouseRawX(), input->getMouseRawY());
 
 	float gameTime = mTimer.getGameTime();
 
@@ -392,14 +424,42 @@ void Game2App::updateScene(float dt)
 		if (r > 0.5f && l < e->getRange())
 		{
 			spotted = true;
-			Ray ray = Ray(e->getPosition(), player.getPosition());
+			Ray ray = Ray(e->getPosition(), -toPlayer);
 			if (wallDetectionIsOn)
 			{
 				for (int i=0; i<level->walls.size(); ++i)
 				{
 					Wall w = level->walls[i];
 					Box2 b = Box2(w.getPosition() - Vector3(w.getRadii().x, 0.0f, w.getRadii().z),
-						w.getPosition() + Vector3(w.getRadii().x, 0.0f, w.getRadii().z));
+						w.getPosition() + Vector3(w.getRadii().x, w.getSize().y, w.getRadii().z));
+				
+					if (b.intersect(ray, 0.0f, 1.0f))
+					{
+						spotted = false;
+					}
+				}
+			}
+		}
+	}
+	for (int i=0; i<level->towers.size(); ++i)
+	{
+		Tower* t = level->towers[i];
+		Vector3 toPlayer = t->getPosition() - player.getPosition();
+		Vector3 norm;
+		Normalize(&norm, &(-toPlayer));
+		float r = max(D3DXVec3Dot(&(norm), &t->getDirection()), 0);
+		float l = Length(&toPlayer);
+		if (r > 0.85f && l < t->getRange())
+		{
+			spotted = true;
+			Ray ray = Ray(t->getPosition(), -toPlayer);
+			if (wallDetectionIsOn)
+			{
+				for (int i=0; i<level->walls.size(); ++i)
+				{
+					Wall w = level->walls[i];
+					Box2 b = Box2(w.getPosition() - Vector3(w.getRadii().x, 0.0f, w.getRadii().z),
+						w.getPosition() + Vector3(w.getRadii().x, w.getSize().y, w.getRadii().z));
 				
 					if (b.intersect(ray, 0.0f, 1.0f))
 					{
@@ -422,7 +482,7 @@ void Game2App::updateScene(float dt)
 			level->pickups[i].setInActive();
 		}
 	}
-	for (int i = 0; i < level->walls.size(); i++) {
+	for (int i = 0; i < level->walls.size() - 1; i++) {
 		for (int j = 0; j < player.perimeter.size(); j++) {
 			if (level->walls[i].contains(player.perimeter[j])) {
 				player.colliding = true;
@@ -479,6 +539,17 @@ void Game2App::updateScene(float dt)
 		else
 			wallDetectionIsOn = true;
 	}
+	if (keyPressed(VK_RBUTTON))
+	{
+		camTheta += float(mousePos.x) * dt;
+		camZoom -= float(mousePos.y) * dt;
+		if (camTheta > 180 || camTheta < -180)
+			camTheta = -camTheta;
+		if (camZoom < minZoom)
+			camZoom = minZoom;
+		if (camZoom > maxZoom)
+			camZoom = maxZoom;
+	}
 	
 	CameraDirection.x = sinf(camTheta);
 	CameraDirection.z = cosf(camTheta);
@@ -488,6 +559,7 @@ void Game2App::updateScene(float dt)
 	Vector3 lookAt(0.0f, 0.0f, 0.0f);
 	if (cameraMode == topDown)
 	{
+		player.canStrafe = false;
 		camPos = Vector3(0.0f, 150.0f / camZoom, 0.0f);
 		camPos += player.getPosition();
 		camPos -= CameraDirection * 150 / camZoom;
@@ -495,6 +567,7 @@ void Game2App::updateScene(float dt)
 	}
 	else if (cameraMode == firstPerson)
 	{
+		player.canStrafe = true;
 		camPos = Vector3(0.0f, player.getHeight(), 0.0f);
 		camPos += player.getPosition();
 		target = player.getPosition() + Vector3(0.0f, player.getHeight(), 0.0f);
@@ -746,4 +819,126 @@ bool Box2::intersect(const Ray &r, float t0, float t1){
 	if (tzmax < tmax)
 		tmax = tzmax;
 	return ( (tmin < t1) && (tmax > t0) );
+}
+void initRawinput( HWND hwnd )
+{
+	puts( "Starting up rawinput devices..." ) ;
+
+	// After the window has been created, 
+	// register raw input devices
+	RAWINPUTDEVICE Rid[2] ;
+        
+	Rid[0].usUsagePage = 0x01 ;  // magic numbers
+	Rid[0].usUsage = 0x02 ;      // magically means mouse
+	Rid[0].dwFlags = 0 ; // (use this if you DO NOT WANT to capture mouse)
+	//Rid[0].dwFlags = RIDEV_CAPTUREMOUSE | RIDEV_NOLEGACY ;  // (use this to CAPTURE MOUSE)
+	Rid[0].hwndTarget = hwnd ;
+
+	Rid[1].usUsagePage = 0x01 ;  // magic numbers
+	Rid[1].usUsage = 0x06 ;      // magically means keyboard
+	Rid[1].dwFlags = 0 ;         // use RIDEV_NOHOTKEYS for no winkey
+	Rid[1].hwndTarget = hwnd ;
+
+	if( !RegisterRawInputDevices( Rid, 2, sizeof(Rid[0]) ) )
+	{
+		//registration failed. Check your Rid structs above.
+		//printWindowsLastError( "RegisterRawInputDevices" ) ;
+		puts( "Could not register raw input devices. Check your Rid structs, please." ) ;
+		exit(1);
+	}
+}
+
+////////////////////////
+// WNDPROC
+// Notice that WndProc is very very neglected.
+// We hardly do anything with it!  That's because
+// we do all of our processing in the draw()
+// function.
+LRESULT CALLBACK WndProc(   HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam )
+{
+  switch( message )
+  {
+  case WM_CREATE:
+    Beep( 50, 10 );
+    return 0;
+    break;
+
+  case WM_PAINT:
+    {
+      HDC hdc;
+      PAINTSTRUCT ps;
+      hdc = BeginPaint( hwnd, &ps );
+      // don't draw here.  would be waaay too slow.
+      // draw in the draw() function instead.
+      EndPaint( hwnd, &ps );
+    }
+    return 0;
+    break;
+
+  case WM_KEYDOWN:
+    switch( wparam )
+    {
+    case VK_ESCAPE:
+      PostQuitMessage( 0 );
+      break;
+    default:
+      break;
+    }
+    return 0;
+
+
+
+  case WM_INPUT: 
+    {
+      UINT dwSize;
+
+      GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &dwSize, 
+        sizeof(RAWINPUTHEADER));
+      LPBYTE lpb = new BYTE[dwSize];
+      if (lpb == NULL) 
+      {
+        return 0;
+      } 
+
+      int readSize = GetRawInputData( (HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER) ) ;
+
+      if( readSize != dwSize )
+        puts( "ERROR:  GetRawInputData didn't return correct size!" ) ; 
+
+      RAWINPUT* raw = (RAWINPUT*)lpb;
+
+      if (raw->header.dwType == RIM_TYPEKEYBOARD) 
+      {
+        if( raw->data.keyboard.VKey == VK_SPACE )
+        {
+          puts( "You are pressing space" ) ;
+        }
+      }
+      else if (raw->header.dwType == RIM_TYPEMOUSE) 
+      {
+        int dx = raw->data.mouse.lLastX ;
+        int dy = raw->data.mouse.lLastY ;
+
+        printf( "%d %d\n", dx, dy ) ;
+      } 
+
+      delete[] lpb; 
+      return 0;
+    } 
+
+  case WM_SIZE:
+    {
+      int width = LOWORD( lparam ) ;
+      int height = HIWORD( lparam ) ;
+      printf( "RESIZED TO width=%d height=%d\n", width, height ) ;
+    }
+    break;
+
+  case WM_DESTROY:
+    PostQuitMessage( 0 ) ;
+    return 0;
+    break;
+  }
+
+  return DefWindowProc( hwnd, message, wparam, lparam );
 }

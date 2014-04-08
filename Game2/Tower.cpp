@@ -11,6 +11,7 @@ Tower::Tower()
 	turnSpeed = 5;
 	gameTime = 0;
 	rotationIndex = 0;
+	range = 100;
 }
 
 Tower::~Tower()
