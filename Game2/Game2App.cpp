@@ -289,7 +289,7 @@ void Game2App::initApp()
 
 	level = new Level(md3dDevice);
 	level->setPlayer(&player);
-	level->fillLevel("level1.txt");
+	level->fillLevel("level2.txt");
 	numberOfSpotLights = level->spotLights.size();
 	
 	floor.init(md3dDevice, level->getLevelSize().x, level->getLevelSize().y);
@@ -419,7 +419,7 @@ void Game2App::drawScene()
 		mfxSpotVars.resize(level->spotLights.size());
 	}*/
 	for (int i = 0; i < level->spotLights.size(); i++) {
-		mfxSpotVars[i]->SetRawValue(&level->spotLights[i], 0, sizeof(Light));
+		mfxSpotVars[i]->SetRawValue(level->spotLights[i], 0, sizeof(Light));
 	}
 
 	// set some variables for the shader
@@ -637,5 +637,4 @@ void Game2App::setNewObstacleCluster()
 		cs--;
 	}
 }
-
 

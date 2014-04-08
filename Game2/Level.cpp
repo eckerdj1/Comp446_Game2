@@ -106,20 +106,20 @@ void Level::fillLevel(string s) {
 			fin >> posX;
 			fin >> posZ;
 			enemy = new Enemy;
-			Light sL;
-			sL.ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			sL.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			sL.specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			sL.att.x    = 1.0f;
-			sL.att.y    = 0.0f;
-			sL.att.z    = 0.0f;
-			sL.spotPow  = 64.0f;
-			sL.range    = 300.0f;
+			Light* sL = new Light;
+			sL->ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL->diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL->specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL->att.x    = 1.0f;
+			sL->att.y    = 0.0f;
+			sL->att.z    = 0.0f;
+			sL->spotPow  = 64.0f;
+			sL->range    = 300.0f;
 			spotLights.push_back(sL);
 			//enemy->setDiffuseMap(diffuseMapVar);
 			enemy->setAImode(PATH);
 			//enemy->init("Enemy", Vector3(posX*enlargeByC, 0, posZ*enlargeByC), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
-			enemy->init("Enemy", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
+			enemy->init("Enemy", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, sL);
 			enemy->setPosition(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 			enemy->addPathPoint(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 			for (int j = 1; j < segments; j++) {
@@ -128,22 +128,55 @@ void Level::fillLevel(string s) {
 				enemy->addPathPoint(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 			}
 		} else if (type == "random") {
-			/*fin >> posX;
-			fin >> posZ;
 			enemy = new Enemy;
-			enemy->init("Enemy", Vector3(posX, 0, posZ), 15, 17, 6, 3.3f, md3dDevice);
+			Light* sL = new Light;
+			sL->ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL->diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL->specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			sL->att.x    = 1.0f;
+			sL->att.y    = 0.0f;
+			sL->att.z    = 0.0f;
+			sL->spotPow  = 64.0f;
+			sL->range    = 300.0f;
+			spotLights.push_back(sL);
+			enemy->setAImode(RANDOM);
+			enemy->init("Enemy", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, sL);
 			float boundX1, boundX2;
-			float boundY1, boundY2;
+			float boundZ1, boundZ2;
 			fin >> boundX1; 
-			fin >> boundY1;
+			fin >> boundZ1;
 			fin >> boundX2;
-			fin >> boundY2;
-			enemy->setBounds(Vector2(boundX1, boundY1), Vector2(boundY1, boundY2));*/
+			fin >> boundZ2;
+			enemy->setPosition(Vector3((boundX1+(boundX2-boundX1)/2)*enlargeByC, 0, (boundZ1+(boundZ2-boundZ1)/2)*enlargeByC));
+			enemy->setBounds(Vector2(boundX1, boundX2), Vector2(boundZ1, boundZ2));
 		}
 		enemies.push_back(enemy);
 		int temp = 0;
 		temp++;
 	}	
+	fin >> count;
+	Tower* tower;
+	for (int i = 0; i < count; i++) {
+		//do tower stuff
+		float posX;
+		float posZ;
+		fin >> posX;
+		fin >> posZ;
+		tower = new Tower;
+		Light* sL = new Light;
+		sL->ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		sL->diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		sL->specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		sL->att.x    = 1.0f;
+		sL->att.y    = 0.0f;
+		sL->att.z    = 0.0f;
+		sL->spotPow  = 64.0f;
+		sL->range    = 300.0f;
+		spotLights.push_back(sL);
+		tower->init("Tower", Vector3(0, 0, 0), 0, 17, 6, 3.3f, md3dDevice, sL);
+		tower->setPosition(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
+		towers.push_back(tower);
+	}
 	fin >> count;
 	Pickup* pickup;
 	for (int i = 0; i < count; i++) {
@@ -180,6 +213,9 @@ void Level::update(float dt) {
 	for (int i = 0; i < pickups.size(); i++) {
 		pickups[i].update(dt);
 	}
+	for (int i = 0; i < towers.size(); i++) {
+		towers[i]->update(dt);
+	}
 	for (int i = 0; i < enemies.size(); i++) {
 		enemies[i]->update(dt);
 	}
@@ -207,6 +243,11 @@ void Level::draw(Matrix mVP) {
 		enemies[i]->setMTech(mTech);
 		enemies[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
 		enemies[i]->draw(mVP);
+	}
+	for (int i = 0; i < towers.size(); i++) {
+		towers[i]->setMTech(mTech);
+		towers[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
+		towers[i]->draw(mVP);
 	}
 
 }
