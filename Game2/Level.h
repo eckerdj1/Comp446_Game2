@@ -47,6 +47,7 @@ public:
 	void setMTech(ID3D10EffectTechnique* tech) { mTech = tech; }
 	void setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10EffectMatrixVariable* worldVar);
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
+	void setPlayer(Player* p) { player = p; }
 
 
 

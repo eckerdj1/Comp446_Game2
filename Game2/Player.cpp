@@ -50,14 +50,14 @@ void Player::init(string n, Vector3 pos, float spd, float height, float width, f
 	this->width = width;
 	this->depth = depth;
 	//make positions points from width, depth
-	perimeter.push_back(Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.y - depth/2 - 1.4f));
-	perimeter.push_back(Vector3(0.0f, 0.1f, pos.y - depth/2 - 1.4f));
-	perimeter.push_back(Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.y - depth/2 - 1.4f));
-	perimeter.push_back(Vector3(pos.x + width/2 + 1.4f, 0.1f, 0.0f));
-	perimeter.push_back(Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.y + depth/2 + 1.4f));
-	perimeter.push_back(Vector3(0.0f, 0.1f, pos.y + depth/2 + 1.4f));
-	perimeter.push_back(Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.y + depth/2 + 1.4f));
-	perimeter.push_back(Vector3(pos.x - width/2 - 1.4f, 0.1f, 0.0f));
+	perimeter.push_back(Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.z - depth/2 - 1.4f));
+	perimeter.push_back(Vector3(pos.x, 0.1f, pos.z - depth/2 - 1.4f));
+	perimeter.push_back(Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.z - depth/2 - 1.4f));
+	perimeter.push_back(Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.z));
+	perimeter.push_back(Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.z + depth/2 + 1.4f));
+	perimeter.push_back(Vector3(pos.x, 0.1f, pos.z + depth/2 + 1.4f));
+	perimeter.push_back(Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.z + depth/2 + 1.4f));
+	perimeter.push_back(Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.z));
 	spotLight = light;
 
 	buildBody();
@@ -336,14 +336,14 @@ void Player::draw(Matrix mVP)
 void Player::setPosition(Vector3 pos) {
 
 	position = pos;
-	//perimeter[0] = Vector3(pos.x - width/2, 0.1f, pos.y - depth/2);
-	//perimeter[1] = Vector3(0.0f, 0.1f, pos.y - depth/2);
-	//perimeter[2] = Vector3(pos.x + width/2, 0.1f, pos.y - depth/2);
-	//perimeter[3] = Vector3(pos.x + width/2, 0.1f, 0.0f);
-	//perimeter[4] = Vector3(pos.x + width/2, 0.1f, pos.y + depth/2);
-	//perimeter[5] = Vector3(0.0f, 0.1f, pos.y + depth/2);
-	//perimeter[6] = Vector3(pos.x - width/2, 0.1f, pos.y + depth/2);
-	//perimeter[7] = Vector3(pos.x - width/2, 0.1f, 0.0f);
+	perimeter[0] = Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.z - depth/2 - 1.4f);
+	perimeter[1] = Vector3(pos.x, 0.1f, pos.z - depth/2 - 1.4f);
+	perimeter[2] = Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.z - depth/2 - 1.4f);
+	perimeter[3] = Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.z);
+	perimeter[4] = Vector3(pos.x + width/2 + 1.4f, 0.1f, pos.z + depth/2 + 1.4f);
+	perimeter[5] = Vector3(pos.x, 0.1f, pos.z + depth/2 + 1.4f);
+	perimeter[6] = Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.z + depth/2 + 1.4f);
+	perimeter[7] = Vector3(pos.x - width/2 - 1.4f, 0.1f, pos.z);
 }
 
 void Player::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)

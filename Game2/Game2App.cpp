@@ -219,9 +219,7 @@ void Game2App::initApp()
 
 
 	floor.init(md3dDevice, 3000, 3000);
-	level = new Level(md3dDevice);
-	level->setDiffuseMap(mfxDiffuseMapVar);
-	level->fillLevel("level1.txt");
+	
 	splash.init(md3dDevice, 1.0f, White);
 
 	//initialize texture resources
@@ -287,7 +285,10 @@ void Game2App::initApp()
 	player.setDiffuseMap(mfxDiffuseMapVar);
 	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, &spotLight);
 	//delete spotLight;
-
+	level = new Level(md3dDevice);
+	level->setDiffuseMap(mfxDiffuseMapVar);
+	level->setPlayer(&player);
+	level->fillLevel("level1.txt");
 	
 	mfxLightCount->SetInt(numberOfLights);
 	//numberOfSpotLights = level->spotLights.size();

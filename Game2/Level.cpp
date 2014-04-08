@@ -148,7 +148,7 @@ void Level::fillLevel(string s) {
 	}
 	fin >> playerLoc.x;
 	fin >> playerLoc.z;
-
+	player->setPosition(Vector3(playerLoc.x*enlargeByC, 0.0f, playerLoc.z*enlargeByC));
 	fin >> exitLoc.x;
 	fin >> exitLoc.z;
 	//build a landing area for the exit destination
