@@ -35,8 +35,9 @@ public:
 	void setEffectVariables(ID3D10EffectMatrixVariable*, ID3D10EffectMatrixVariable*);
 
 	Vector3 getPosition() {return position;}
+	void setPosition(Vector3 pos);
 	Vector3 getDirection() {return direction;}
-
+	void setDirTheta(float dTh) { dirTheta = dTh; }
 	void addAiRot(Vector2 rotData);
 	
 private:

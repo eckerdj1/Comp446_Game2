@@ -116,7 +116,7 @@ void Tower::update(float dt) {
 	column->update(dt);
 	base->update(dt);
 
-	spotLight->pos = eye->getPosition() + Vector3(0.0f, 4.5f, 0.0f);
+	spotLight->pos = position + Vector3(0.0f, 4.5f+eye->getPosition().y, 0.0f);
 	spotLight->range = 100.0f;
 	spotLight->diffuse.r += 1.0f;
 	D3DXVec3Normalize(&spotLight->dir, &(eye->getDirection() + Vector3(0.0f,-.5f,0.0f)));
@@ -144,4 +144,10 @@ void Tower::addAiRot(Vector2 rotData) {
 
 	aiRot.push_back(rotData);
 
+}
+
+void Tower::setPosition(Vector3 pos)
+{
+	position = pos;
+	spotLight->pos = pos + Vector3(0.0f, 4.5f, 0.0f);
 }
