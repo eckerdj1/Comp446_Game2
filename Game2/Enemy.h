@@ -23,6 +23,8 @@ public:
 	Vector3 getPosition() {return position;}
 	Vector3 getDirection() {return direction;}
 
+	void setPosition(Vector3 pos);
+
 	void setAImode(AiMode a) {aiMode = a;}
 	void setBounds(Vector2 xLim, Vector2 zLim) {xBounds = xLim; zBounds = zLim;}
 	void addPathPoint(Vector3 p) {aiPath.push_back(p);}

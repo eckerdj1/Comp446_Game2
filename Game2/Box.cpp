@@ -354,8 +354,8 @@ void Box::draw()
 	md3dDevice->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     md3dDevice->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
 	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
-	if (diffuseMapVar)
-		diffuseMapVar->SetResource(textures.rv[0]);
+	/*if (diffuseMapVar)
+		diffuseMapVar->SetResource(textures.rv[0]);*/
 	md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
 	//if (textured)
 	//{

@@ -110,13 +110,16 @@ void Level::fillLevel(string s) {
 			sL.spotPow  = 25.0f;
 			sL.range    = 40.0f;
 			spotLights.push_back(sL);
-			enemy->setDiffuseMap(diffuseMapVar);
-			enemy->init("Enemy", Vector3(posX, 0, posZ), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
-			enemy->addPathPoint(Vector3(posX, 0, posZ));
+			//enemy->setDiffuseMap(diffuseMapVar);
+			enemy->setAImode(PATH);
+			//enemy->init("Enemy", Vector3(posX*enlargeByC, 0, posZ*enlargeByC), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
+			enemy->init("Enemy", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
+			enemy->setPosition(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
+			enemy->addPathPoint(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 			for (int j = 1; j < segments; j++) {
 				fin >> posX;
 				fin >> posZ;
-				enemy->addPathPoint(Vector3(posX, 0, posZ));
+				enemy->addPathPoint(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 			}
 		} else if (type == "random") {
 			/*fin >> posX;
@@ -160,6 +163,7 @@ void Level::fillLevel(string s) {
 
 	fin.close();
 
+
 }
 
 void Level::update(float dt) {
@@ -170,9 +174,9 @@ void Level::update(float dt) {
 	for (int i = 0; i < pickups.size(); i++) {
 		pickups[i].update(dt);
 	}
-	/*for (int i = 0; i < enemies.size(); i++) {
+	for (int i = 0; i < enemies.size(); i++) {
 		enemies[i]->update(dt);
-	}*/
+	}
 }
 
 void Level::draw(Matrix mVP) {
@@ -189,11 +193,11 @@ void Level::draw(Matrix mVP) {
 		mfxWorldVar->SetMatrix(pickups[i].getWorldMatrix());
 		pickups[i].draw();
 	}
-	//for (int i = 0; i < enemies.size(); i++) {
-	//	enemies[i]->setMTech(mTech);
-	//	enemies[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
-	//	enemies[i]->draw(mVP);
-	//}
+	for (int i = 0; i < enemies.size(); i++) {
+		enemies[i]->setMTech(mTech);
+		enemies[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
+		enemies[i]->draw(mVP);
+	}
 
 }
 

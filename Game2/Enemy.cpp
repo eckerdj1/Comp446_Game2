@@ -369,3 +369,8 @@ void Enemy::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
 {
 	diffuseMapVar = var;
 }
+
+void Enemy::setPosition(Vector3 pos)
+{
+	position = pos;
+}
