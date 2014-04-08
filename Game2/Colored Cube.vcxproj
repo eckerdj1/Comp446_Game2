@@ -142,6 +142,7 @@
     <ClInclude Include="Tower.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Wall.h" />
+    <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
