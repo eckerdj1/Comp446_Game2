@@ -7,6 +7,23 @@ Level::Level() {
 	enlargeByC = 5;
 }
 
+Level::~Level() {
+	for (int i = 0; i < enemies.size(); i++) {
+		delete enemies[i];
+	}
+	for (int i = 0; i < towers.size(); i++) {
+		delete towers[i];
+	}
+	for (int i = 0; i < spotLights.size(); i++) {
+		delete spotLights[i];
+	}
+	enemies.resize(0);
+	towers.resize(0);
+	spotLights.resize(0);
+	player = NULL;
+	md3dDevice = NULL;
+}
+
 Level::Level(ID3D10Device* device) {
 	playerLoc = Vector3(0.0f, 0.0f, 0.0f);
 	exitLoc = Vector3(0.0f, 0.0f, 0.0f);

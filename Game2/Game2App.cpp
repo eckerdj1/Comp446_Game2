@@ -66,6 +66,20 @@ public:
 	Vector3 bounds[2];
 };
 
+enum GameState {PLAY, TITLE, HOWTO, LEVELWIN, GAMEWIN, LEVELLOSE, GAMEOVER, CREDITS};
+
+struct PlayState {
+	int level;
+	int pickUpsRemaining;
+	bool completedLevel;
+	int livesRemaining;
+	PlayState(int l, int pUR, bool cL) {
+		level = l;
+		pickUpsRemaining = pUR;
+		completedLevel = cL;
+	}
+};
+
 class Game2App : public D3DApp
 {
 public:
@@ -96,6 +110,8 @@ private:
 	Player player;
 	Level* level;
 	Floor floor;
+	PlayState playState;
+	GameState gameState;
 	int numberOfObstacles;
 	vector<Box*> obstacleBoxes;
 	vector<Obstacle> obstacles;
@@ -246,6 +262,10 @@ void Game2App::initApp()
 {
 	D3DApp::initApp();
 	
+	gameState = TITLE;
+	playState.level = 1;
+	playState.completedLevel = false;
+	playState.livesRemaining = 3;
 	audio->playCue(MAIN_TRACK);
 
 	srand(time(0));
@@ -337,6 +357,7 @@ void Game2App::initApp()
 	level->setPlayer(&player);
 	level->fillLevel("level1.txt");
 	numberOfSpotLights = level->spotLights.size();
+	playState.pickUpsRemaining = level->pickups.size();
 	
 	floor.init(md3dDevice, level->getLevelSize().x * 4, level->getLevelSize().y * 4);
 
@@ -366,6 +387,43 @@ void Game2App::onResize()
 void Game2App::updateScene(float dt)
 {
 	D3DApp::updateScene(dt);
+
+	if (gameState == TITLE) {
+		//change camera, to point at splash quad
+		gameState = HOWTO;
+	} else if (gameState == HOWTO) {
+		//change texture on splash to "how to" 
+		gameState = PLAY;
+	} else if (gameState == LEVELWIN) {
+		if (playState.level > 3) {
+			gameState = GAMEWIN;
+		} else {
+			playState.level += 1;
+			playState.livesRemaining = 3;
+			//delete level
+			delete level;
+		}
+	} else if (gameState == GAMEWIN) {
+		//display Congrats Splash screen
+		gameState = CREDITS;
+	}else if (gameState == GAMEOVER) {
+		// change camera to point at game over quad
+		gameState = CREDITS;
+	} else if (gameState == CREDITS) {
+		//display the Credits Splash screen
+	} else if (gameState == PLAY) {
+		level = new Level(md3dDevice);
+		level->setPlayer(&player);
+		if (playState.level == 2) {
+			level->fillLevel("level2.txt");
+		} else if (playState.level == 3) {
+			level->fillLevel("level3.txt");
+		}
+		numberOfSpotLights = level->spotLights.size();
+		playState.pickUpsRemaining = level->pickups.size();
+		level->setDiffuseMap(mfxDiffuseMapVar);
+		level->setSpecMap(mfxSpecMapVar);
+	}
 	lastMousePos = mousePos;
 	mousePos = Vector2(input->getMouseX(), input->getMouseY());
 
