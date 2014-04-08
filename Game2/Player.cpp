@@ -10,7 +10,7 @@ Player::Player()
 	dirTheta = 0;
 	turnSpeed = 5;
 	gameTime = 0;
-
+	colliding = false;
 }
 
 Player::~Player()
@@ -186,13 +186,11 @@ void Player::update(float dt)
 	if (keyPressed(PlayerSprintKey))
 	{
 		speed = sprintBoost;
-		torso->setRotX(ToRadian(15));
 		sprinting = true;
 	}
 	else
 	{
 		speed = normalSpeed;
-		torso->setRotX(ToRadian(0));
 	}
 	if (keyPressed(PlayerForwardKey))
 	{
@@ -225,16 +223,24 @@ void Player::update(float dt)
 		if (dirTheta > 180 || dirTheta < -180)
 			dirTheta = -dirTheta;
 	}
+
+	if (sprinting && moving && !colliding)
+		torso->setRotX(ToRadian(15));
+	else
+		torso->setRotX(ToRadian(0));
+
 	direction.x = sinf(dirTheta);
 	direction.z = cosf(dirTheta);
 	torso->setDirection(direction);
 	torso->setPosition(Vector3(position.x, position.y + height * 0.5f, position.z));
 
 
-	spotLight->pos = torso->getPosition();
+	spotLight->pos = torso->getPosition() + direction * depth + Vector3(0, head->getPosition().y, 0);
+	Vector3 lightTarget = position + direction * 20;
+	Vector3 lightLookAt = lightTarget - spotLight->pos;
 	//spotLight->pos.y += 10.0f;
 	//Vector3 normalizedDir = (torso->getDirection()*12)-torso->getPosition();
-	D3DXVec3Normalize(&spotLight->dir, &(torso->getDirection()));
+	D3DXVec3Normalize(&spotLight->dir, &(lightLookAt));
 	
 
 	//	leg movement
@@ -246,27 +252,30 @@ void Player::update(float dt)
 	float legOffset = 0;
 	float shinRange = 0;
 	float shinOffset = 10;
-	if (moving && !sprinting) // set the leg position variables
-	{	//swing legs back and forth if moving
-		normPos = 175;
-		legRot = sin(elapsed * limbSpeed);
-		phase = 1.414f;
-		shinRot = sin(elapsed * limbSpeed + phase);
-		legRange = 20;
-		legOffset = 0;
-		shinRange = 25;
-		shinOffset = 15;
-	}
-	else if (moving && sprinting)
+	if (!colliding)
 	{
-		normPos = 175;
-		legRot = sin(elapsed * limbSpeed);
-		phase = 1.414f;
-		shinRot = sin(elapsed * limbSpeed + phase);
-		legRange = 90;
-		legOffset = -45;
-		shinRange = 80;
-		shinOffset = 55;
+		if (moving && !sprinting) // set the leg position variables
+		{	//swing legs back and forth if moving
+			normPos = 175;
+			legRot = sin(elapsed * limbSpeed);
+			phase = 1.414f;
+			shinRot = sin(elapsed * limbSpeed + phase);
+			legRange = 20;
+			legOffset = 0;
+			shinRange = 25;
+			shinOffset = 15;
+		}
+		else if (moving && sprinting)
+		{
+			normPos = 175;
+			legRot = sin(elapsed * limbSpeed);
+			phase = 1.414f;
+			shinRot = sin(elapsed * limbSpeed + phase);
+			legRange = 90;
+			legOffset = -45;
+			shinRange = 80;
+			shinOffset = 55;
+		}
 	}
 	// set the leg positions
 	rightLeg->setRotX(ToRadian(normPos + (-legRot * legRange + legOffset)));
@@ -285,27 +294,30 @@ void Player::update(float dt)
 	// rotate arms down
 	rightArm->setRotX(ToRadian(180));
 	leftArm->setRotX(ToRadian(180));
-	if (moving && !sprinting)
-	{	//swing arms back and forth if moving
-		float normPos = 180;
-		float armRot = sin(elapsed * limbSpeed);
-		float armRange = 10;
-		rightArm->setRotX(ToRadian(normPos + (armRot * armRange)));
-		leftArm->setRotX(ToRadian(normPos + (-armRot * armRange)));
-	}
-	else if (moving && sprinting)
+	if (!colliding)
 	{
-		float normPos = 180;
-		float armRot = sin(elapsed * limbSpeed);
-		float armRange = 30;
-		float armOffset = 10;
-		rightArm->setRotX(ToRadian(normPos + (armRot * armRange) + armOffset));
-		leftArm->setRotX(ToRadian(normPos + (-armRot * armRange) + armOffset));
-	}
-	else
-	{	//move arms by side if not moving
-		rightArm->setRotX(ToRadian(180));
-		leftArm->setRotX(ToRadian(180));
+		if (moving && !sprinting)
+		{	//swing arms back and forth if moving
+			float normPos = 180;
+			float armRot = sin(elapsed * limbSpeed);
+			float armRange = 10;
+			rightArm->setRotX(ToRadian(normPos + (armRot * armRange)));
+			leftArm->setRotX(ToRadian(normPos + (-armRot * armRange)));
+		}
+		else if (moving && sprinting)
+		{
+			float normPos = 180;
+			float armRot = sin(elapsed * limbSpeed);
+			float armRange = 30;
+			float armOffset = 10;
+			rightArm->setRotX(ToRadian(normPos + (armRot * armRange) + armOffset));
+			leftArm->setRotX(ToRadian(normPos + (-armRot * armRange) + armOffset));
+		}
+		else
+		{	//move arms by side if not moving
+			rightArm->setRotX(ToRadian(180));
+			leftArm->setRotX(ToRadian(180));
+		}
 	}
 
 	//Update the bodyparts
@@ -318,6 +330,7 @@ void Player::update(float dt)
 	leftShin->update(dt);
 	torso->update(dt);
 	
+	colliding = false;
 
 }
 

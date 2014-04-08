@@ -11,6 +11,7 @@ Box::Box()
 : mNumVertices(0), mNumFaces(0), md3dDevice(0), mVB(0), mIB(0)
 {
 	diffuseMapVar = 0;
+	setTexCoords(0.0f, 0.0f, 1.0f, 1.0f);
 }
  
 Box::~Box()
@@ -245,11 +246,6 @@ void Box::init(ID3D10Device* device, float sX, float sY, float sZ, D3DXCOLOR c1,
 	left = Vector3(-1,0,0);
 	front = Vector3(0,0,-1);
 	back = Vector3(0,0,1);
-	// for texture coordinates
-	Vector2 tl = Vector2(0.0f, 0.0f);
-	Vector2 tr = Vector2(1.0f, 0.0f);
-	Vector2 bl = Vector2(0.0f, 1.0f);
-	Vector2 br = Vector2(1.0f, 1.0f);
 
     Vertex vertices[] =
     {
@@ -446,4 +442,12 @@ void Box::releaseVBuffer()
 void Box::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
 {
 	diffuseMapVar = var;
+}
+
+void Box::setTexCoords(float top, float left, float bottom, float right)
+{
+	this->tl = Vector2(top, left);
+	this->tr = Vector2(top, right);
+	this->bl = Vector2(bottom, left);
+	this->br = Vector2(bottom, right);
 }

@@ -31,6 +31,8 @@ public:
 	DXColor getColor1();
 	DXColor getColor2();
 
+	void setTexCoords(float top, float left, float bottom, float right);
+
 private:
 	DWORD mNumVertices;
 	DWORD mNumFaces;
@@ -46,6 +48,11 @@ private:
 	ID3D10Device* md3dDevice;
 	ID3D10Buffer* mVB;
 	ID3D10Buffer* mIB;
+
+	Vector2 tl;
+	Vector2 tr;
+	Vector2 bl;
+	Vector2 br;
 
 	ID3D10EffectShaderResourceVariable* diffuseMapVar;
 };

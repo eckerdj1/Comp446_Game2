@@ -64,4 +64,5 @@ private:
 
 	vector<Vector3> aiPath;
 	int pathIndex;
+	int pathDir;
 };

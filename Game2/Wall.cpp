@@ -18,6 +18,8 @@ void Wall::init(ID3D10Device* device, Vector3 pos, Vector3 size, D3DXCOLOR c) {
 	
 	Wall::device = device;
 	Box* b = new Box();
+	float width = Max(size.x, size.z) / 14.5f;
+	b->setTexCoords(0.0f, 0.0f, 1.0f, width);
 	b->init(device, size.x, size.y, size.z, c, c);
 	GameObject::init(b, pos, Vector3(0,0,0), size, 0);
 	scaleX = size.x;

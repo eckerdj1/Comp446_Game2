@@ -16,6 +16,7 @@ public:
 	~Floor();
 
 	void init(ID3D10Device* m3dDevice, float xSize, float ySize);
+	//void draw(float dt);
 
 	void update(float dt);
 

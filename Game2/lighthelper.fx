@@ -93,6 +93,10 @@ float3 PointLight(SurfaceInfo v, Light L, float3 eyePos)
 		litColor += diffuseFactor * v.diffuse * L.diffuse;
 		litColor += specFactor * v.spec * L.spec;
 	}
+	else
+	{
+		return float3(0.0f, 0.0f, 0.0f);
+	}
 	
 	// attenuate
 	return litColor / dot(L.att, float3(1.0f, d, d*d));

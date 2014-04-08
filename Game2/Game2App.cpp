@@ -128,6 +128,9 @@ private:
 	ID3D10ShaderResourceView* mDiffuseMapRV;
 	ID3D10ShaderResourceView* mSpecMapRV;
 
+	ID3D10ShaderResourceView* mFloorTex;
+	ID3D10ShaderResourceView* mFloorSpec;
+
 	ID3D10EffectShaderResourceVariable* mfxDiffuseMapVar;
 	ID3D10EffectShaderResourceVariable* mfxSpecMapVar;
 
@@ -218,7 +221,6 @@ void Game2App::initApp()
 	zero = Vector3(0,0,0);
 
 
-	floor.init(md3dDevice, 3000, 3000);
 	
 	splash.init(md3dDevice, 1.0f, White);
 
@@ -229,6 +231,11 @@ void Game2App::initApp()
 	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
 		L"defaultspec.dds", 0, 0, &mSpecMapRV, 0 ));
 
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"floor.jpg", 0, 0, &mFloorTex, 0 ));
+
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"floor.dds", 0, 0, &mFloorSpec, 0 ));
 
 	CameraDirection = forward;
 	camPos = Vector3(0.0f, 100.0f, 0.0f);
@@ -261,8 +268,8 @@ void Game2App::initApp()
 		l.diffuse = Color(1.0f, 1.0f, 1.0f);
 		l.specular = Color(1.0f, 1.0f, 1.0f);
 		l.att.x = 0.0f;
-		l.att.y = 0.03f;
-		l.att.z = 0.0011f;
+		l.att.y = 0.015f;
+		l.att.z = 0.0007f;
 		l.range = 500.0f;
 		l.type = lightType;
 		lights.push_back(l);
@@ -270,29 +277,34 @@ void Game2App::initApp()
 	ambientLight.pos = Vector3(0,0,0);
 	ambientLight.ambient = Color(0.17f, 0.17f, 0.17f);
 
-
-	buildFX();
-	buildVertexLayouts();
-
 	spotLight.ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	spotLight.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	spotLight.specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	spotLight.att.x    = 1.0f;
-	spotLight.att.y    = 0.0f;
-	spotLight.att.z    = 0.0f;
+	spotLight.att.y    = 0.03f;
+	spotLight.att.z    = 0.0005f;
 	spotLight.spotPow  = 25.0f;
-	spotLight.range    = 40.0f;
-	player.setDiffuseMap(mfxDiffuseMapVar);
+	spotLight.range    = 200.0f;
 	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, &spotLight);
-	//delete spotLight;
+
 	level = new Level(md3dDevice);
-	level->setDiffuseMap(mfxDiffuseMapVar);
 	level->setPlayer(&player);
 	level->fillLevel("level1.txt");
+	numberOfSpotLights = level->spotLights.size();
+	
+	floor.init(md3dDevice, level->getLevelSize().x, level->getLevelSize().y);
+
+
+	buildFX();
+	buildVertexLayouts();
+
+	player.setDiffuseMap(mfxDiffuseMapVar);
+	//delete spotLight;
+	level->setDiffuseMap(mfxDiffuseMapVar);
+	level->setSpecMap(mfxSpecMapVar);
 	
 	mfxLightCount->SetInt(numberOfLights);
-	//numberOfSpotLights = level->spotLights.size();
-	//mfxSpotCount->SetInt(numberOfSpotLights);
+	mfxSpotCount->SetInt(numberOfSpotLights);
 	mfxTexVar->SetInt(0);
 }
 
@@ -329,6 +341,7 @@ void Game2App::updateScene(float dt)
 	for (int i = 0; i < level->walls.size(); i++) {
 		for (int j = 0; j < player.perimeter.size(); j++) {
 			if (level->walls[i].contains(player.perimeter[j])) {
+				player.colliding = true;
 				player.setPosition(oldPlayerPos);
 				for (int k = 0; k < player.perimeter.size(); k++) {
 					player.perimeter[k] = oldPerimeter[k];
@@ -367,9 +380,9 @@ void Game2App::updateScene(float dt)
 	CameraDirection.z = cosf(camTheta);
 
 	// Build the view matrix.
-	camPos = Vector3(0.0f, 100.0f / camZoom, 0.0f);
+	camPos = Vector3(0.0f, 150.0f / camZoom, 0.0f);
 	camPos += player.getPosition();
-	camPos -= CameraDirection * 200 / camZoom;
+	camPos -= CameraDirection * 150 / camZoom;
 	//pos -= Vector3(player.getDirection().x, -0.6f, player.getDirection().z) * 80.0f;
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	target = player.getPosition();
@@ -402,12 +415,12 @@ void Game2App::drawScene()
 	// light for Player
 	mfxSpotVar->SetRawValue(&spotLight, 0, sizeof(Light));
 	// light for Enemies
-	//for (int i = 0; i < numberOfSpotLights; i++) {
-	//	mfxSpotVars.resize(level->spotLights.size());
-	//}
-	//for (int i = 0; i < numberOfSpotLights; i++) {
-	//	mfxSpotVars[i]->SetRawValue(&level->spotLights[i], 0, sizeof(Light));
-	//}
+	/*for (int i = 0; i < numberOfSpotLights; i++) {
+		mfxSpotVars.resize(level->spotLights.size());
+	}*/
+	for (int i = 0; i < level->spotLights.size(); i++) {
+		mfxSpotVars[i]->SetRawValue(&level->spotLights[i], 0, sizeof(Light));
+	}
 
 	// set some variables for the shader
 	// set the point to the shader technique
@@ -435,18 +448,22 @@ void Game2App::drawScene()
 	
 
 	//Drawing the level
+	level->setTextureUseVar(mfxTexVar);
+	level->setDiffuseMap(mfxDiffuseMapVar);
 	mfxTexVar->SetInt(0);
 	mVP = mView * mProj;
 	level->setMTech(mTech);
 	level->setEffectVariables(mfxWVPVar, mfxWorldVar);
 	level->draw(mVP);
 
-	mfxTexVar->SetInt(0);
+	mfxTexVar->SetInt(1);
+	mfxDiffuseMapVar->SetResource(mFloorTex);
+	mfxSpecMapVar->SetResource(mFloorSpec);
 	floor.setMTech(mTech);
 	mfxWVPVar->SetMatrix(floor.getWorldMatrix() * mVP);
 	mfxWorldVar->SetMatrix(floor.getWorldMatrix());
-	mfxTexVar->SetInt(0);
 	floor.draw();
+	mfxTexVar->SetInt(0);
 
 	//Draw splash screen
 	Identity(&mVP);
@@ -535,14 +552,14 @@ void Game2App::buildFX()
 	}
 	mfxAmbientVar = mFX->GetVariableByName("ambientLight");
 	mfxSpotVar = mFX->GetVariableByName("spotLight");
-	//for (int i = 0; i < numberOfSpotLights; i++)
-	//{
-	//	ID3D10EffectVariable* vars = mFX->GetVariableByName("level->spotLights")->GetElement(i);
-	//	mfxSpotVars.push_back(vars);
-	//}
+	for (int i = 0; i < numberOfSpotLights; i++)
+	{
+		ID3D10EffectVariable* vars = mFX->GetVariableByName("spotLights")->GetElement(i);
+		mfxSpotVars.push_back(vars);
+	}
 	mfxLightType = mFX->GetVariableByName("gLightType")->AsScalar();
 	mfxLightCount = mFX->GetVariableByName("numberOfLights")->AsScalar();
-	//mfxSpotCount = mFX->GetVariableByName("numberOfSpotLights")->AsScalar();
+	mfxSpotCount = mFX->GetVariableByName("numberOfSpotLights")->AsScalar();
 	mfxTexVar = mFX->GetVariableByName("useTex")->AsScalar();
 
 	mfxDiffuseMapVar = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();

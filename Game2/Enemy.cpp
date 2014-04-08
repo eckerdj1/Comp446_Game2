@@ -18,6 +18,7 @@ Enemy::Enemy()
 	xBounds = Vector2(-10.0f, 10.0f);
 	zBounds = Vector2(-10.0f, 10.0f);
 	pathIndex = 0;
+	pathDir = 1;
 }
 
 Enemy::~Enemy()
@@ -241,9 +242,15 @@ void Enemy::update(float dt)
 		if(((position.x < (aiPath[pathIndex].x + 1.0f)) && (position.x > (aiPath[pathIndex].x - 1.0f)))
 		&&((position.z < (aiPath[pathIndex].z + 1.0f)) && (position.z > (aiPath[pathIndex].z - 1.0f))))
 		{
-			pathIndex ++;
-			if(pathIndex == aiPath.size())
-				pathIndex = 0;
+			if(pathIndex == aiPath.size() - 1)
+			{
+				pathDir = -1;
+			}
+			if (pathIndex == 0)
+			{
+				pathDir = 1;
+			}
+			pathIndex += pathDir;
 
 			direction = aiPath[pathIndex] - position;
 			D3DXVec3Normalize(&direction, &direction);
@@ -266,10 +273,12 @@ void Enemy::update(float dt)
 	torso->setDirection(direction);
 	torso->setPosition(Vector3(position.x, position.y + height * 0.5f, position.z));
 	
-	spotLight->pos = torso->getPosition();
+	spotLight->pos = head->getPosition() + torso->getDirection() * depth;
+	Vector3 lightTarget = position + direction * 20;
+	Vector3 lightLookAt = spotLight->pos - lightTarget;
 	//spotLight->pos.y += 10.0f;
 	//Vector3 normalizedDir = (torso->getDirection()*12)-torso->getPosition();
-	D3DXVec3Normalize(&spotLight->dir, &(torso->getDirection()));
+	D3DXVec3Normalize(&spotLight->dir, &(lightLookAt));
 	
 	//	leg movement
 	float normPos = 175;
@@ -310,10 +319,10 @@ void Enemy::update(float dt)
 	leftShin->setRotX(ToRadian(-shinRot * shinRange + shinOffset));
 
 
-	if (keyPressed(PlayerJumpKey))
-	{
-		torso->reduceScaleByFactor(1.01f);
-	}
+	//if (keyPressed(PlayerJumpKey))
+	//{
+	//	torso->reduceScaleByFactor(1.01f);
+	//}
 	
 	//	arm movement
 	// rotate arms down

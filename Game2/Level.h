@@ -37,6 +37,11 @@ private:
 	ID3D10EffectMatrixVariable* mfxWVPVar;
 	ID3D10EffectMatrixVariable* mfxWorldVar;
 	ID3D10EffectShaderResourceVariable* diffuseMapVar;
+	ID3D10EffectShaderResourceVariable* specMapVar;
+	ID3D10EffectScalarVariable* useTexture;
+	
+	ID3D10ShaderResourceView* mWallTex;
+	ID3D10ShaderResourceView* mWallSpec;
 public:
 	Level();
 	Level(ID3D10Device* device); 
@@ -47,7 +52,12 @@ public:
 	void setMTech(ID3D10EffectTechnique* tech) { mTech = tech; }
 	void setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10EffectMatrixVariable* worldVar);
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
+	void setSpecMap(ID3D10EffectShaderResourceVariable* var);
+	void setTextureUseVar(ID3D10EffectScalarVariable* var) {useTexture = var;}
 	void setPlayer(Player* p) { player = p; }
+	Vector2 getLevelSize(){ return Vector2(levelDimensions.x, levelDimensions.z); }
+
+
 
 
 

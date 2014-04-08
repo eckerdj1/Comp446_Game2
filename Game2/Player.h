@@ -37,6 +37,10 @@ public:
 	void setPosition(Vector3 pos);
 	Vector3 getDirection() {return direction;}
 	vector<Vector3> perimeter;
+
+public:
+	bool colliding;
+
 private:
 	string name;
 	BodyPart* torso;

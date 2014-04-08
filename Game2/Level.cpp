@@ -13,6 +13,12 @@ Level::Level(ID3D10Device* device) {
 	levelDimensions = Vector3(0.0f,0.0f,0.0f);
 	md3dDevice = device;
 	enlargeByC = 5;
+	
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"oldBricks.jpg", 0, 0, &mWallTex, 0 ));
+
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"oldBricks.dds", 0, 0, &mWallSpec, 0 ));
 }
 
 void Level::setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10EffectMatrixVariable* worldVar)
@@ -107,8 +113,8 @@ void Level::fillLevel(string s) {
 			sL.att.x    = 1.0f;
 			sL.att.y    = 0.0f;
 			sL.att.z    = 0.0f;
-			sL.spotPow  = 25.0f;
-			sL.range    = 40.0f;
+			sL.spotPow  = 64.0f;
+			sL.range    = 300.0f;
 			spotLights.push_back(sL);
 			//enemy->setDiffuseMap(diffuseMapVar);
 			enemy->setAImode(PATH);
@@ -180,19 +186,23 @@ void Level::update(float dt) {
 }
 
 void Level::draw(Matrix mVP) {
-	
+	diffuseMapVar->SetResource(mWallTex);
+	specMapVar->SetResource(mWallSpec);
+	useTexture->SetInt(1);
 	for (int i = 0; i < walls.size(); i++) {
 		walls[i].setMTech(mTech);
 		mfxWVPVar->SetMatrix(walls[i].getWorldMatrix() * mVP);
 		mfxWorldVar->SetMatrix(walls[i].getWorldMatrix());
 		walls[i].draw();
 	}
+	useTexture->SetInt(0);
 	for (int i = 0; i < pickups.size(); i++) {
 		pickups[i].setMTech(mTech);
 		mfxWVPVar->SetMatrix(pickups[i].getWorldMatrix() * mVP);
 		mfxWorldVar->SetMatrix(pickups[i].getWorldMatrix());
 		pickups[i].draw();
 	}
+	useTexture->SetInt(0);
 	for (int i = 0; i < enemies.size(); i++) {
 		enemies[i]->setMTech(mTech);
 		enemies[i]->setEffectVariables(mfxWVPVar, mfxWorldVar);
@@ -204,4 +214,9 @@ void Level::draw(Matrix mVP) {
 void Level::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
 {
 	diffuseMapVar = var;
+}
+
+void Level::setSpecMap(ID3D10EffectShaderResourceVariable* var)
+{
+	specMapVar = var;
 }
