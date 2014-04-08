@@ -10,6 +10,7 @@
 #include "Enemy.h"
 #include "Wall.h"
 #include "Pickup.h"
+#include "Tower.h"
 //#include "Tower"
 
 
@@ -21,9 +22,9 @@ public:
 	vector<Wall> walls;
 	vector<Pickup> pickups;
 	vector<Enemy*> enemies;
+	vector<Tower*> towers;
 	vector<Light*> spotLights;
 private:
-	//vector<Tower> towers;
 
 	//vector<Part> parts;
 

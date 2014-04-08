@@ -204,7 +204,6 @@ private:
 
 	float mTheta;
 	float mPhi;
-	float rr;
 
 
 };
@@ -716,7 +715,8 @@ void Game2App::buildVertexLayouts()
 
 
 
-
+
+
 
 // Optimized method
 bool Box2::intersect(const Ray &r, float t0, float t1){
