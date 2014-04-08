@@ -246,7 +246,7 @@ void Game2App::initApp()
 {
 	D3DApp::initApp();
 	
-	//audio->playCue(MAIN_TRACK);
+	audio->playCue(MAIN_TRACK);
 
 	srand(time(0));
 	left = Vector3(1,0,0);
@@ -409,10 +409,16 @@ void Game2App::updateScene(float dt)
 			}
 		}
 	}
+	if(spotted) {
+		audio->playCue(ALARM);
+	}
 
 	//collision stuff
 	for (int i = 0; i < level->pickups.size(); i++) {
 		if (level->pickups[i].contains(player.getPosition())) {
+			if (level->pickups[i].isActive()) {
+				audio->playCue(PICKUP);
+			}
 			level->pickups[i].setInActive();
 		}
 	}
