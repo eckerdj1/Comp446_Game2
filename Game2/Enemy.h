@@ -14,7 +14,7 @@ public:
 
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
 
-	virtual void update(float dt);
+	void update(float dt);
 	void draw(Matrix);
 	
 	void setMTech(ID3D10EffectTechnique* m) { mTech = m;}

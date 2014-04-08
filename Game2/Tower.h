@@ -1,16 +1,29 @@
 #pragma once
 
-#include "BodyPart.h"
-#include "GameObject.h"
 #include "Box.h"
+#include "GameObject.h"
+#include "constants.h"
+#include "d3dUtil.h"
+#include "input.h"
+#include <math.h>
+#include <vector>
+#include <string>
+#include "audio.h"
+#include "BodyPart.h"
+#include "CubeTex.h"
 #include "Body.h"
+using std::vector;
+using std::string;
+
+class BodyPart;
+class Body;
 
 class Tower : public Body{
 public:
 	Tower();
 	~Tower(void);
 
-	void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* device);
+	void init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d, Light* light);
 	void buildBody();
 
 	void setDiffuseMap(ID3D10EffectShaderResourceVariable* var);
@@ -23,23 +36,22 @@ public:
 
 	Vector3 getPosition() {return position;}
 	Vector3 getDirection() {return direction;}
-	
-	D3DXMATRIX mWVP;
-	ID3D10EffectMatrixVariable* mfxWVPVar;
-	ID3D10EffectMatrixVariable* mfxWorldVar;
-	ID3D10EffectTechnique* mTech;
-	ID3D10EffectShaderResourceVariable* diffuseMapVar;
 
+	void addAiRot(Vector2 rotData);
+	
 private:
 	string name;
-
 	BodyPart* base;
 	BodyPart* column;
 	BodyPart* eye;
-	BodyPart* attackBeam;
+
+	Light* spotLight;
 
 	Vector3 position;
 	Vector3 direction;
+
+	vector<Vector2> aiRot; //Rotation amount, duration.  Duration -1.0f if no wait period
+	int rotationIndex;
 
 	float height;
 	float width;

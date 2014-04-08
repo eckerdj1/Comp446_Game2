@@ -10,6 +10,7 @@ Tower::Tower()
 	dirTheta = 0;
 	turnSpeed = 5;
 	gameTime = 0;
+	rotationIndex = 0;
 }
 
 Tower::~Tower()
@@ -17,10 +18,9 @@ Tower::~Tower()
 	delete base;
 	delete column;
 	delete eye;
-	delete attackBeam;
 }
 
-void Tower::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d)
+void Tower::init(string n, Vector3 pos, float spd, float height, float width, float depth, ID3D10Device* d, Light* light)
 {
 	device = d;
 
@@ -35,7 +35,8 @@ void Tower::init(string n, Vector3 pos, float spd, float height, float width, fl
 	this->depth = depth;
 	buildBody();
 
-	//Tower::Body::init(n, pos, spd, height, width, depth, d);
+	spotLight = light;
+
 }
 
 void Tower::setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10EffectMatrixVariable* worldVar)
@@ -49,61 +50,76 @@ void Tower::buildBody() {
 	base = new BodyPart();
 	column = new BodyPart();
 	eye = new BodyPart();
-	attackBeam = new BodyPart();
 
 	Vector3 bPos = position;
-	bPos += Vector3(height*-0.05f, width, depth);
+	bPos = Vector3(0,0,0);
 	Box * b = new Box();
-	b ->init(device, width, height, depth, DarkRed, DarkRed);
+	b ->init(device, width*2, height/15, depth*2, DarkRed, DarkRed);
 	b->setDiffuseMap(diffuseMapVar);
-	base->init("base", b, bPos, direction, Vector3(width, height, depth), speed);
+	base->init("base", b, bPos, direction, Vector3(width*2, height/15, depth*2), speed);
 	base->setBody(this);
 
 	Vector3 cPos = position;
-	//cPos += height //offset
+	//cPos.y += height/2;
 	b = new Box();
-	b ->init(device, width, height, depth, DarkRed, DarkRed);
+	b ->init(device, width*.75, height, depth*.75, Gray, Gray);
 	b->setDiffuseMap(diffuseMapVar);
-	column->init("column", b, cPos, direction, Vector3(width, height, depth), speed);
+	column->init("column", b, cPos, direction, Vector3(width*.75, height, depth*.75), speed);
 	column->setBody(this);
 
-	Vector3 hPos = position;
-	//hPos += height //offset
+	Vector3 ePos = position;
+	ePos.y += height;
 	b = new Box();
-	b ->init(device, width, height, depth, DarkRed, DarkRed);
+	b ->init(device, width*.80, width*.80, depth*.80, DarkRed, DarkRed);
 	b->setDiffuseMap(diffuseMapVar);
-	eye->init("eye", b, hPos, direction, Vector3(width, height, depth), speed);
+	eye->init("eye", b, ePos, direction, Vector3(width*.80, width*.80, depth*.80), speed);
 	eye->setBody(this);
-
-	Vector3 aPos = position;
-	//aPos += height //offset
-	b = new Box();
-	b ->init(device, width, height, depth, DarkRed, DarkRed);
-	b->setDiffuseMap(diffuseMapVar);
-	attackBeam->init("attackBeam", b, aPos, direction, Vector3(width, height, depth), speed);
-	attackBeam->setBody(this);
 
 	base->addChild(column);
 	base->addChild(eye);
-	base->addChild(attackBeam);
 
 	b = 0;
 }
 
 void Tower::update(float dt) {
+	if(aiRot.size() == 0) {
+		aiRot.push_back(Vector2(1.0f,-1.0f));
+	}
+	
 	gameTime += dt;
 	elapsed += dt;
 
-	dirTheta += turnSpeed * dt;
+	if(aiRot[rotationIndex].y == -1.0f) {
+		elapsed = 0;
+	}
+	else if(aiRot[rotationIndex].y < elapsed) {
+		rotationIndex++;
+
+		if(rotationIndex == aiRot.size())
+			rotationIndex = 0;
+
+		elapsed = 0;
+	}
+
+	dirTheta += aiRot[rotationIndex].x * dt;
+
+	if(dirTheta > 360.0f)
+		dirTheta -= 360.0f;
+
+
 	direction.x = sinf(dirTheta);
 	direction.z = cosf(dirTheta);
 	eye->setDirection(direction);
+	base->setPosition(Vector3(position.x, position.y + height/20 * .5f, position.z));
 
-
-	attackBeam->update(dt);
 	eye->update(dt);
 	column->update(dt);
 	base->update(dt);
+
+	spotLight->pos = eye->getPosition() + Vector3(0.0f, 4.5f, 0.0f);
+	spotLight->range = 100.0f;
+	spotLight->diffuse.r += 1.0f;
+	D3DXVec3Normalize(&spotLight->dir, &(eye->getDirection() + Vector3(0.0f,-.5f,0.0f)));
 }
 
 void Tower::draw(Matrix mVP)
@@ -114,12 +130,18 @@ void Tower::draw(Matrix mVP)
     {
 		base->draw(mVP);
     }
-
-
 }
 
 
 void Tower::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
 {
 	diffuseMapVar = var;
+}
+
+void Tower::addAiRot(Vector2 rotData) {
+	//rotData.x contains rotation increment
+	//rotData.y contains rotation duration.  -1 if infinite
+
+	aiRot.push_back(rotData);
+
 }
