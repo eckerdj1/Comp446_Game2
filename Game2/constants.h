@@ -82,8 +82,9 @@ const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calcul
 const char WAVE_BANK[] = "audio\\Win\\Wave Bank.xwb";
 const char SOUND_BANK[] = "audio\\Win\\Sound Bank.xsb";
 const char MAIN_TRACK[] = "main";
-const char GAME_OVER[] = "gameOver";
-const char WOOSH[] = "woosh";
-const char MATCH[] = "match";
+const char ALARM[] = "alarm";
+const char PICKUP[] = "pickup";
+const char SWING[] = "swing";
+const char ENEMY_DEAD[] = "enemy dead";
 
 #endif
