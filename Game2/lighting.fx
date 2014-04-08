@@ -84,6 +84,7 @@ float4 PS(VS_OUT pIn) : SV_Target
     pIn.normalW = normalize(pIn.normalW);
 
 	
+	float3 normalW = pIn.normalW;
 	// Get materials from texture maps.
 	float4 diffuse;
 	float4 spec;
@@ -91,6 +92,7 @@ float4 PS(VS_OUT pIn) : SV_Target
 	{
 		diffuse = gDiffuseMap.Sample( gTriLinearSam, pIn.texC );
 		spec    = gSpecMap.Sample( gTriLinearSam, pIn.texC );
+		//normalW = gSpecMap.Sample( gTriLinearSam, pIn.texC );
 	}
 	else
 	{
@@ -98,7 +100,6 @@ float4 PS(VS_OUT pIn) : SV_Target
 		spec = pIn.spec;
 	}
    
-	float3 normalW = pIn.normalW;
    
     SurfaceInfo v = {pIn.posW, normalW, diffuse, spec};
     

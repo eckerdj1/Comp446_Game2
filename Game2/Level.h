@@ -21,7 +21,7 @@ public:
 	vector<Wall> walls;
 	vector<Pickup> pickups;
 	vector<Enemy*> enemies;
-	vector<Light> spotLights;
+	vector<Light*> spotLights;
 private:
 	//vector<Tower> towers;
 
@@ -42,6 +42,9 @@ private:
 	
 	ID3D10ShaderResourceView* mWallTex;
 	ID3D10ShaderResourceView* mWallSpec;
+	
+	ID3D10ShaderResourceView* mPickUpTex;
+	ID3D10ShaderResourceView* mPickUpSpec;
 public:
 	Level();
 	Level(ID3D10Device* device); 

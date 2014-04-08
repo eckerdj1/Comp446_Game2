@@ -36,6 +36,36 @@ using std::rand;
 
 #define toString(x) Text::toString(x)
 
+// Ray-Bounding box intersection
+// http://people.csail.mit.edu/amy/papers/box-jgt.pdf
+class Ray 
+{
+public:
+	Ray(Vector3 &o, Vector3 &d) {
+		origin = o;
+		direction = d;
+		inv_direction = Vector3(1/d.x, 1/d.y, 1/d.z);
+		sign[0] = (inv_direction.x < 0);
+		sign[1] = (inv_direction.y < 0);
+		sign[2] = (inv_direction.z < 0);
+	}
+	Vector3 origin;
+	Vector3 direction;
+	Vector3 inv_direction;
+	int sign[3];
+};
+
+class Box2 {
+public:
+	Box2(const Vector3 &min, const Vector3 &max) {
+		assert(min < max);
+		bounds[0] = min;
+		bounds[1] = max;
+	}
+	bool intersect(const Ray &, float t0, float t1);
+	Vector3 bounds[2];
+};
+
 class Game2App : public D3DApp
 {
 public:
@@ -70,10 +100,12 @@ private:
 	vector<Box*> obstacleBoxes;
 	vector<Obstacle> obstacles;
 
+	int cameraMode;
+	int firstPerson;
+	int topDown;
+
 
 	float floorMovement;
-	int clusterSize, clusterSizeVariation, clusterSeparation;
-	int cubeSeparation, lineJiggle, cubeJiggle, clusterJiggle;
 
 	//Lighting
 	vector<Light> lights;
@@ -83,6 +115,8 @@ private:
 	int numberOfSpotLights;
 	int lightType; // 0-parallel, 1-pointlight, 2-spotlight
 	bool useTex;
+
+	bool wallDetectionIsOn;
 
 	float fallRatePerSecond;
 	float avgFallSpeed;
@@ -111,6 +145,7 @@ private:
 	Score score;
 
 	bool gameOver;
+	bool spotted;
 
 	//New Spectrum HUD stuff by Andy
 	Box specHudBox[6];
@@ -157,16 +192,19 @@ private:
 	Vector3 CameraDirection;
 	Vector3 camPos;
 	float camTheta;
+	float camPhi;
 	float camTurnSpeed;
 	float camZoom;
 	float zoomSpeed;
 	float maxZoom, minZoom;
+	Vector2 mousePos, lastMousePos;
 
 	//my edits
 	D3DXMATRIX worldBox1, worldBox2;
 
 	float mTheta;
 	float mPhi;
+	float rr;
 
 
 };
@@ -220,7 +258,11 @@ void Game2App::initApp()
 	down = Vector3(0,-1,0);
 	zero = Vector3(0,0,0);
 
-
+	firstPerson = 1;
+	topDown = 2;
+	cameraMode = topDown;
+	mousePos = Vector2(0.0f, 0.0f);
+	lastMousePos = mousePos;
 	
 	splash.init(md3dDevice, 1.0f, White);
 
@@ -237,14 +279,19 @@ void Game2App::initApp()
 	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
 		L"floor.dds", 0, 0, &mFloorSpec, 0 ));
 
+	wallDetectionIsOn = false;
+
 	CameraDirection = forward;
 	camPos = Vector3(0.0f, 100.0f, 0.0f);
 	camZoom = 1.0f;
 	camTheta = 0.0f;
+	camPhi = 0.0f;
 	camTurnSpeed = 5;
 	zoomSpeed = 5;
 	maxZoom = 10.0f;
 	minZoom = .8f;
+
+	spotted = false;
 
 
 	//init lights - using pointlights
@@ -252,24 +299,24 @@ void Game2App::initApp()
 	// point - 1
 	// spotlight - 2
 	lightType = 1;
-	int rows = 5, cols = 6;
+	int rows = 1, cols = 1;
 	numberOfLights = rows * cols;
-	float startRowPos = -500;
-	float startColPos = -600;
-	float spacing = 200;
+	float startRowPos = 0;
+	float startColPos = 0;
+	float spacing = 20;
 	for (int i=0; i<rows * cols; ++i)
 	{
 		Light l;
 		l.pos = Vector3(((i / cols) % rows) * spacing + startRowPos,
-						30,
+						90,
 						(i % cols) * spacing + startColPos);
 		//l.pos = Vector3(0,100,0);
 		l.ambient = Color(0.67f, 0.67f, 0.67f);
 		l.diffuse = Color(1.0f, 1.0f, 1.0f);
 		l.specular = Color(1.0f, 1.0f, 1.0f);
 		l.att.x = 0.0f;
-		l.att.y = 0.015f;
-		l.att.z = 0.0007f;
+		l.att.y = 0.017f;
+		l.att.z = 0.00085f;
 		l.range = 500.0f;
 		l.type = lightType;
 		lights.push_back(l);
@@ -278,12 +325,12 @@ void Game2App::initApp()
 	ambientLight.ambient = Color(0.17f, 0.17f, 0.17f);
 
 	spotLight.ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	spotLight.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	spotLight.specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	spotLight.diffuse  = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
+	spotLight.specular = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
 	spotLight.att.x    = 1.0f;
-	spotLight.att.y    = 0.03f;
-	spotLight.att.z    = 0.0005f;
-	spotLight.spotPow  = 25.0f;
+	spotLight.att.y    = 0.01f;
+	spotLight.att.z    = 0.0007f;
+	spotLight.spotPow  = 22.0f;
 	spotLight.range    = 200.0f;
 	player.init("Daniel", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, &spotLight);
 
@@ -292,13 +339,14 @@ void Game2App::initApp()
 	level->fillLevel("level1.txt");
 	numberOfSpotLights = level->spotLights.size();
 	
-	floor.init(md3dDevice, level->getLevelSize().x, level->getLevelSize().y);
+	floor.init(md3dDevice, level->getLevelSize().x * 4, level->getLevelSize().y * 4);
 
 
 	buildFX();
 	buildVertexLayouts();
 
 	player.setDiffuseMap(mfxDiffuseMapVar);
+	player.syncInput(input);
 	//delete spotLight;
 	level->setDiffuseMap(mfxDiffuseMapVar);
 	level->setSpecMap(mfxSpecMapVar);
@@ -319,6 +367,8 @@ void Game2App::onResize()
 void Game2App::updateScene(float dt)
 {
 	D3DApp::updateScene(dt);
+	lastMousePos = mousePos;
+	mousePos = Vector2(input->getMouseX(), input->getMouseY());
 
 	float gameTime = mTimer.getGameTime();
 
@@ -327,10 +377,39 @@ void Game2App::updateScene(float dt)
 	for (int i = 0; i < player.perimeter.size(); i++) {
 		oldPerimeter.push_back(player.perimeter[i]);
 	}
-
+	spotted = false;
 	player.update(dt);
 	floor.update(dt);
 	level->update(dt);
+	// enemy sight detection
+	for (int i=0; i<level->enemies.size(); ++i)
+	{
+		Enemy* e = level->enemies[i];
+		Vector3 toPlayer = e->getPosition() - player.getPosition();
+		Vector3 norm;
+		Normalize(&norm, &(-toPlayer));
+		float r = max(D3DXVec3Dot(&(norm), &e->getDirection()), 0);
+		float l = Length(&toPlayer);
+		if (r > 0.5f && l < e->getRange())
+		{
+			spotted = true;
+			Ray ray = Ray(e->getPosition(), player.getPosition());
+			if (wallDetectionIsOn)
+			{
+				for (int i=0; i<level->walls.size(); ++i)
+				{
+					Wall w = level->walls[i];
+					Box2 b = Box2(w.getPosition() - Vector3(w.getRadii().x, 0.0f, w.getRadii().z),
+						w.getPosition() + Vector3(w.getRadii().x, 0.0f, w.getRadii().z));
+				
+					if (b.intersect(ray, 0.0f, 1.0f))
+					{
+						spotted = false;
+					}
+				}
+			}
+		}
+	}
 
 	//collision stuff
 	for (int i = 0; i < level->pickups.size(); i++) {
@@ -375,17 +454,53 @@ void Game2App::updateScene(float dt)
 		if (camZoom < minZoom)
 			camZoom = minZoom;
 	}
+	if (input->wasKeyPressed(FirstPersonKey))
+	{
+		cameraMode = firstPerson;
+	}
+	if (input->wasKeyPressed(TopDownKey))
+	{
+		cameraMode = topDown;
+	}
+	// mouse camera control
+	if (cameraMode == firstPerson)
+	{
+		camPhi += mousePos.y * dt;
+	}
+	if (input->wasKeyPressed(VK_RETURN))
+	{
+		if (wallDetectionIsOn)
+			wallDetectionIsOn = false;
+		else
+			wallDetectionIsOn = true;
+	}
 	
 	CameraDirection.x = sinf(camTheta);
 	CameraDirection.z = cosf(camTheta);
 
 	// Build the view matrix.
-	camPos = Vector3(0.0f, 150.0f / camZoom, 0.0f);
-	camPos += player.getPosition();
-	camPos -= CameraDirection * 150 / camZoom;
-	//pos -= Vector3(player.getDirection().x, -0.6f, player.getDirection().z) * 80.0f;
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
-	target = player.getPosition();
+	Vector3 lookAt(0.0f, 0.0f, 0.0f);
+	if (cameraMode == topDown)
+	{
+		camPos = Vector3(0.0f, 150.0f / camZoom, 0.0f);
+		camPos += player.getPosition();
+		camPos -= CameraDirection * 150 / camZoom;
+		target = player.getPosition();
+	}
+	else if (cameraMode == firstPerson)
+	{
+		camPos = Vector3(0.0f, player.getHeight(), 0.0f);
+		camPos += player.getPosition();
+		target = player.getPosition() + Vector3(0.0f, player.getHeight(), 0.0f);
+		target += player.getDirection() * 20;
+	}
+	
+	//pos -= Vector3(player.getDirection().x, -0.6f, player.getDirection().z) * 80.0f;
+	
+	
+	
+	
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&mView, &camPos, &target, &up);
 	input->clearAll();
@@ -419,7 +534,7 @@ void Game2App::drawScene()
 		mfxSpotVars.resize(level->spotLights.size());
 	}*/
 	for (int i = 0; i < level->spotLights.size(); i++) {
-		mfxSpotVars[i]->SetRawValue(&level->spotLights[i], 0, sizeof(Light));
+		mfxSpotVars[i]->SetRawValue(level->spotLights[i], 0, sizeof(Light));
 	}
 
 	// set some variables for the shader
@@ -477,20 +592,31 @@ void Game2App::drawScene()
 
 	/////Text Drawing Section
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
-	RECT R = {5, 5, 0, 0};
+	RECT R = {100, 5, 0, 0};
 	RECT R1 = {0, 0, 800, 600};
 	RECT R2 = {0, 540, 800, 600};
 
 	std::wostringstream outs;  
 	
 	outs.precision(6);
+	outs << "MouseX: " << mousePos.x << "\n";
+	outs << "MouseY: " << mousePos.y << "\n";
+	outs << "Camera Theta: " << camTheta << "\n";
+	if (spotted)
+		outs << "You are spotted!\n";
+	outs << "Wall Detection: ";
+	if (wallDetectionIsOn)
+		outs << "On\n";
+	else
+		outs << "Off\n";
 	string Hud = score.getString();
+	
 
 	/*outs << score.getString() << L"\n";
 	outs << L"Blobs Available: " << ammo << L"\n";
-	outs << L"Gallons Left: " << lives;
+	outs << L"Gallons Left: " << lives;*/
 	std::wstring text = outs.str();
-	mFont->DrawText(0, text.c_str(), -1, &R, DT_NOCLIP, BLACK);*/
+	mFont->DrawText(0, text.c_str(), -1, &R, DT_NOCLIP, White);
 	timesNew.draw(Hud, Vector2(5, 5));
 	/*if (gameOver)
 	{
@@ -587,55 +713,31 @@ void Game2App::buildVertexLayouts()
     HR(md3dDevice->CreateInputLayout(vertexDesc, 5, PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize, &mVertexLayout));
 }
- 
-void Game2App::setNewObstacleCluster()
-{
-	float obstacleScale = 2.5f;
-	float startZ = 125.0f;
-	float currentZ = startZ;
-	float laneSize = 6.0f;
-	Vector3 oScale(obstacleScale, obstacleScale, obstacleScale);
-	bool lane[5];
-	for (int i=0; i<5; ++i)
-	{
-		lane[i] = false;
-	}
 
-	
-	int cs = clusterSize + rand() % clusterSizeVariation;
-	while(cs)	//put lines of cubes in the same cluster
-	{	
-		int cubesOnLine = rand() % 4 + 1;
-		while (cubesOnLine) //puts cubes on the same line
-		{
-			float thisZ = currentZ + (rand() % lineJiggle);
-			int pickLane = rand() % 5;
-			while (lane[pickLane])
-			{
-				pickLane = rand() % 5;
-			}
-			float thisX = -12.0f + pickLane * laneSize;
-			lane[pickLane] = true;
-			cubesOnLine--;
-			for (int i=0; i<obstacles.size(); ++i)
-			{
-				if (obstacles[i].isNotActive())
-				{
-					obstacles[i].setActive();
-					obstacles[i].setPosition(Vector3(thisX, 1, thisZ));
-					obstacles[i].setSpeed(0);
-					break;
-				}
-			}
-			
-		}
-		for (int i=0; i<5; ++i)
-		{
-			lane[i] = false;
-		}
-		currentZ += (int)(cubeSeparation + rand() % cubeJiggle);
-		cs--;
-	}
+
+
+
+
+// Optimized method
+bool Box2::intersect(const Ray &r, float t0, float t1){
+	float tmin, tmax, tymin, tymax, tzmin, tzmax;
+	tmin = (bounds[r.sign[0]].x - r.origin.x) * r.inv_direction.x;
+	tmax = (bounds[1-r.sign[0]].x - r.origin.x) * r.inv_direction.x;
+	tymin = (bounds[r.sign[1]].y - r.origin.y) * r.inv_direction.y;
+	tymax = (bounds[1-r.sign[1]].y - r.origin.y) * r.inv_direction.y;
+	if ( (tmin > tymax) || (tymin > tmax) )
+	return false;
+	if (tymin > tmin)
+	tmin = tymin;
+	if (tymax < tmax)
+	tmax = tymax;
+	tzmin = (bounds[r.sign[2]].z - r.origin.z) * r.inv_direction.z;
+	tzmax = (bounds[1-r.sign[2]].z - r.origin.z) * r.inv_direction.z;
+	if ( (tmin > tzmax) || (tzmin > tmax) )
+		return false;
+	if (tzmin > tmin)
+		tmin = tzmin;
+	if (tzmax < tmax)
+		tmax = tzmax;
+	return ( (tmin < t1) && (tmax > t0) );
 }
-
-

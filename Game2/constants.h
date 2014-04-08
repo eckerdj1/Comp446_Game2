@@ -13,9 +13,11 @@
 #define RotateX D3DXMatrixRotationX
 #define RotateY D3DXMatrixRotationY
 #define RotateZ D3DXMatrixRotationZ
+#define Cross D3DXVec3Cross
 #define ToRadian D3DXToRadian
 #define ToDegree D3DXToDegree
-#define Normalize D3DXVec3Normalize;
+#define Normalize D3DXVec3Normalize
+#define Length D3DXVec3Length
 #define keyPressed(x) GetAsyncKeyState(x)
 #define Color(x, y, z) DXColor(x, y, z, 1.0f)
 
@@ -54,6 +56,8 @@ const UCHAR PlayerColorUpKey = 0x4A;//0x57;	// W
 const UCHAR PlayerColorDownKey = 0x4C;//0x53;  // S
 const UCHAR PlayerJumpKey = VK_SPACE;
 const UCHAR PlayerSprintKey = VK_LSHIFT;
+const UCHAR FirstPersonKey = 0x31;		// 1
+const UCHAR TopDownKey = 0x32;			// 2
 
 //-----------------------------------------------
 //                  Constants
@@ -70,6 +74,8 @@ const float FRAME_RATE = 200.0f;                // the target frame rate (frames
 const float MIN_FRAME_RATE = 10.0f;             // the minimum frame rate
 const float MIN_FRAME_TIME = 1.0f/FRAME_RATE;   // minimum desired time for 1 frame
 const float MAX_FRAME_TIME = 1.0f/MIN_FRAME_RATE; // maximum time used in calculations
+
+
 
 
 // audio

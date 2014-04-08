@@ -11,7 +11,7 @@ Enemy::Enemy()
 	dirTheta = 0;
 	turnSpeed = 5;
 	gameTime = 0;
-
+	range = 40;
 	elapsed = 0;
 
 	aiMode = RANDOM;
@@ -251,15 +251,22 @@ void Enemy::update(float dt)
 				pathDir = 1;
 			}
 			pathIndex += pathDir;
-
+			if (pathIndex > aiPath.size() - 1)
+				pathIndex = aiPath.size() - 1;
 			direction = aiPath[pathIndex] - position;
 			D3DXVec3Normalize(&direction, &direction);
+			
 
 			elapsed = 0;
 		}
 
 		//Move toward waypoint, updating position
 		direction = aiPath[pathIndex] - position;
+		if (aiPath.size() == 1)
+		{
+			direction = Vector3(0.0f, 0.0f, 1.0f);
+			speed = 0;
+		}
 		D3DXVec3Normalize(&direction, &direction);
 		position += direction * speed * dt;
 		moving = true;
@@ -273,9 +280,9 @@ void Enemy::update(float dt)
 	torso->setDirection(direction);
 	torso->setPosition(Vector3(position.x, position.y + height * 0.5f, position.z));
 	
-	spotLight->pos = head->getPosition() + torso->getDirection() * depth;
+	spotLight->pos = position + Vector3(0.0f, head->getPosition().y, 0.0f) + torso->getDirection() * depth;
 	Vector3 lightTarget = position + direction * 20;
-	Vector3 lightLookAt = spotLight->pos - lightTarget;
+	Vector3 lightLookAt = lightTarget - spotLight->pos;
 	//spotLight->pos.y += 10.0f;
 	//Vector3 normalizedDir = (torso->getDirection()*12)-torso->getPosition();
 	D3DXVec3Normalize(&spotLight->dir, &(lightLookAt));

@@ -28,6 +28,7 @@ public:
 	void setAImode(AiMode a) {aiMode = a;}
 	void setBounds(Vector2 xLim, Vector2 zLim) {xBounds = xLim; zBounds = zLim;}
 	void addPathPoint(Vector3 p) {aiPath.push_back(p);}
+	float getRange() {return range;}
 
 private:
 	string name;
@@ -43,6 +44,8 @@ private:
 	float height;
 	float width;
 	float depth;
+
+	float range;
 
 	float dirTheta;
 	float turnSpeed;

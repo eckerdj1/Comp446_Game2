@@ -37,6 +37,9 @@ public:
 	void setPosition(Vector3 pos);
 	Vector3 getDirection() {return direction;}
 	vector<Vector3> perimeter;
+	float getHeight() {return height;}
+
+	void syncInput(Input* in) {input = in;}
 
 public:
 	bool colliding;
@@ -50,6 +53,10 @@ private:
 	Vector3 position;
 	Vector3 direction;
 	Light* spotLight;
+	Vector2 mousePos, lastMousePos;
+
+	
+	Vector3 left, right, forward, back, up, down, zero;
 
 
 	float height;
@@ -69,6 +76,7 @@ private:
 	float limbSpeed;
 	ID3D10Device* device;
 	ID3D10EffectVariable* mfxLightVar;
+	Input* input;
 
 };
 

@@ -8,9 +8,18 @@ Player::Player()
 	direction = Vector3(0,0,1);
 	position = Vector3(0,0,0);
 	dirTheta = 0;
-	turnSpeed = 5;
+	turnSpeed = 3.5;
 	gameTime = 0;
 	colliding = false;
+	mousePos = Vector2(0.0f, 0.0f);
+	lastMousePos = mousePos;	
+	left = Vector3(1,0,0);
+	right = Vector3(-1,0,0);
+	forward = Vector3(0,0,-1);
+	back = Vector3(0,0,1);
+	up = Vector3(0,1,0);
+	down = Vector3(0,-1,0);
+	zero = Vector3(0,0,0);
 }
 
 Player::~Player()
@@ -179,6 +188,8 @@ void Player::update(float dt)
 {
 	gameTime += dt;
 	elapsed += dt;
+	lastMousePos = mousePos;
+	mousePos = Vector2(input->getMouseRawX(), input->getMouseRawY());
 	//Take care of input
 	//torso->setSpeed(0.0f);
 	bool moving = false;
@@ -196,8 +207,12 @@ void Player::update(float dt)
 	{
 		//torso->setSpeed(speed);
 		position += direction * speed * dt;
+		if (position.y != 0)
+			position.y = 0;
 		for (int i = 0; i < perimeter.size(); i++) {
 			perimeter[i] += direction * speed * dt;
+			if (perimeter[i].y != 0)
+				perimeter[i].y = 0;
 		}
 		moving = true;
 	}
@@ -213,16 +228,24 @@ void Player::update(float dt)
 		elapsed = 0;
 	if (keyPressed(PlayerRightKey))
 	{
-		dirTheta += turnSpeed * dt;
-		if (dirTheta > 180 || dirTheta < -180)
-			dirTheta = -dirTheta;
+		Vector3 rightStrafe;
+		Cross(&rightStrafe, &up, &direction);
+		position += rightStrafe * normalSpeed * dt;
+		for (int i = 0; i < perimeter.size(); i++) {
+			perimeter[i] += rightStrafe * normalSpeed * dt;
+		}
 	}
 	if (keyPressed(PlayerLeftKey))
 	{
-		dirTheta -= turnSpeed * dt;
-		if (dirTheta > 180 || dirTheta < -180)
-			dirTheta = -dirTheta;
+		Vector3 leftStrafe;
+		Cross(&leftStrafe, &direction, &up);
+		position += leftStrafe * normalSpeed * dt;
+		for (int i = 0; i < perimeter.size(); i++) {
+			perimeter[i] += leftStrafe * normalSpeed * dt;
+		}
 	}
+	//dirTheta += float(mousePos.x - lastMousePos.x)* 100.0f * dt;
+	dirTheta += float(mousePos.x) * dt;
 
 	if (sprinting && moving && !colliding)
 		torso->setRotX(ToRadian(15));
@@ -236,7 +259,7 @@ void Player::update(float dt)
 
 
 	spotLight->pos = torso->getPosition() + direction * depth + Vector3(0, head->getPosition().y, 0);
-	Vector3 lightTarget = position + direction * 20;
+	Vector3 lightTarget = position + direction * 70;
 	Vector3 lightLookAt = lightTarget - spotLight->pos;
 	//spotLight->pos.y += 10.0f;
 	//Vector3 normalizedDir = (torso->getDirection()*12)-torso->getPosition();
@@ -288,6 +311,7 @@ void Player::update(float dt)
 	if (keyPressed(PlayerJumpKey))
 	{
 		torso->reduceScaleByFactor(1.01f);
+		height /= 1.01f;
 	}
 	
 	//	arm movement

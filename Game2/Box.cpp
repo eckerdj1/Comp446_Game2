@@ -446,8 +446,8 @@ void Box::setDiffuseMap(ID3D10EffectShaderResourceVariable* var)
 
 void Box::setTexCoords(float top, float left, float bottom, float right)
 {
-	this->tl = Vector2(top, left);
-	this->tr = Vector2(top, right);
-	this->bl = Vector2(bottom, left);
-	this->br = Vector2(bottom, right);
+	this->tl = Vector2(left, top);
+	this->tr = Vector2(right, top);
+	this->bl = Vector2(left, bottom);
+	this->br = Vector2(right, bottom);
 }

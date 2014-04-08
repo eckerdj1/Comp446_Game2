@@ -19,6 +19,12 @@ Level::Level(ID3D10Device* device) {
 
 	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
 		L"oldBricks.dds", 0, 0, &mWallSpec, 0 ));
+
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"pickUp.jpg", 0, 0, &mPickUpTex, 0 ));
+
+	HR(D3DX10CreateShaderResourceViewFromFile(md3dDevice, 
+		L"pickUp.dds", 0, 0, &mPickUpSpec, 0 ));
 }
 
 void Level::setEffectVariables(ID3D10EffectMatrixVariable* wvpVar, ID3D10EffectMatrixVariable* worldVar)
@@ -106,20 +112,20 @@ void Level::fillLevel(string s) {
 			fin >> posX;
 			fin >> posZ;
 			enemy = new Enemy;
-			Light sL;
-			sL.ambient  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			sL.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			sL.specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-			sL.att.x    = 1.0f;
-			sL.att.y    = 0.0f;
-			sL.att.z    = 0.0f;
-			sL.spotPow  = 64.0f;
-			sL.range    = 300.0f;
+			Light* sL = new Light;
+			sL->ambient  = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+			sL->diffuse  = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+			sL->specular = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+			sL->att.x    = 1.0f;
+			sL->att.y    = 0.00099f;
+			sL->att.z    = 0.0035f;
+			sL->spotPow  = 2.0f;
+			sL->range    = 300.0f;
 			spotLights.push_back(sL);
 			//enemy->setDiffuseMap(diffuseMapVar);
 			enemy->setAImode(PATH);
 			//enemy->init("Enemy", Vector3(posX*enlargeByC, 0, posZ*enlargeByC), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
-			enemy->init("Enemy", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, &spotLights[spotLights.size()-1]);
+			enemy->init("Enemy", Vector3(0, 0, 0), 15, 17, 6, 3.3f, md3dDevice, sL);
 			enemy->setPosition(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 			enemy->addPathPoint(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 			for (int j = 1; j < segments; j++) {
@@ -195,7 +201,9 @@ void Level::draw(Matrix mVP) {
 		mfxWorldVar->SetMatrix(walls[i].getWorldMatrix());
 		walls[i].draw();
 	}
-	useTexture->SetInt(0);
+	useTexture->SetInt(1);
+	diffuseMapVar->SetResource(mPickUpTex);
+	specMapVar->SetResource(mPickUpSpec);
 	for (int i = 0; i < pickups.size(); i++) {
 		pickups[i].setMTech(mTech);
 		mfxWVPVar->SetMatrix(pickups[i].getWorldMatrix() * mVP);
