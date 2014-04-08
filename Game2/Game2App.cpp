@@ -289,7 +289,7 @@ void Game2App::initApp()
 
 	level = new Level(md3dDevice);
 	level->setPlayer(&player);
-	level->fillLevel("level2.txt");
+	level->fillLevel("level3.txt");
 	numberOfSpotLights = level->spotLights.size();
 	
 	floor.init(md3dDevice, level->getLevelSize().x, level->getLevelSize().y);

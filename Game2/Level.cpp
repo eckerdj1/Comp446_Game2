@@ -174,6 +174,7 @@ void Level::fillLevel(string s) {
 		sL->range    = 300.0f;
 		spotLights.push_back(sL);
 		tower->init("Tower", Vector3(0, 0, 0), 0, 17, 6, 3.3f, md3dDevice, sL);
+		tower->setDirTheta(i*90.0f);
 		tower->setPosition(Vector3(posX*enlargeByC, 0, posZ*enlargeByC));
 		towers.push_back(tower);
 	}
