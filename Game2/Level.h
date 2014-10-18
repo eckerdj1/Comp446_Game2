@@ -50,6 +50,8 @@ public:
 	Level();
 	Level(ID3D10Device* device); 
 
+	~Level();
+
 	void fillLevel(string s);
 	void update(float dt);
 	void draw(Matrix mVP);

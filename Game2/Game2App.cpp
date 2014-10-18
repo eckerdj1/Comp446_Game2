@@ -73,11 +73,17 @@ struct PlayState {
 	int pickUpsRemaining;
 	bool completedLevel;
 	int livesRemaining;
+	/*
+	PlayState() {
+		level = 1;
+		pickUpsRemaining = 3;
+		completedLevel = false;
+	}
 	PlayState(int l, int pUR, bool cL) {
 		level = l;
 		pickUpsRemaining = pUR;
 		completedLevel = cL;
-	}
+	}*/
 };
 
 class Game2App : public D3DApp
